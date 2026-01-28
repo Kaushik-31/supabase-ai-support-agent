@@ -1,0 +1,86 @@
+Issue #40215: `Never` Type Found in `supabase.rpc`
+URL: https://github.com/supabase/supabase/issues/40215
+Labels: question, awaiting-details, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+<!-- 
+
+⚠️ We receive a lot of bug reports which have already been solved or discussed. If you are looking for help, please try these first:
+
+- Docs: https://docs.supabase.com
+- Discussions: https://github.com/supabase/supabase/discussions
+- Discord: https://discord.supabase.com
+
+Before opening a bug report, please verify the following: 
+
+-->
+
+- [V ] I confirm this is a bug with Supabase, not with my own application. 
+- [V ] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+
+I created a `plpgsql` function in Supabase and tried to connect my VSCode with the function in order to upload data onto Supabase.
+
+My code:
+```
+const { data, error: uploadError } = await supabase.rpc('some_function',  {   column1: value1,  column2: value2,  column3: value3 })
+```
+
+I keep getting `Argument of type '"some_function"' is not assignable to parameter of type 'never'.ts(2345)`.
+The problem changes to `Expected 2 type arguments, but got 1.ts(2558)` when I added `Type` to `supabase.rpc` (`supabase.rpc<MyType>`).
+
+I do not want to change the strict mode to false in ts. What should I do to change the `Never` type?
+
+## Expected behavior
+
+`'some_function'` should have an `any` type instead of `never` .
+
+
+## System information
+
+- OS: [Windows]
+- Version of supabase-js: [2.54.11]
+- Version of Node.js: [22.20.0]
+
+## Additional context
+
+Noob
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kallebysantos ---
+Hi @SharonNg98 💚
+Did you generated your types with `supabase gen types --local --lang typescript` command? [like described here](https://supabase.com/docs/reference/javascript/typescript-support)
+
+The correct way to use Typescript support with Js client is by generating your types after run a migration. Its will result in a `Database` root type that you should pass while creating your supabase client instance:
+
+```bash
+supabase gen types --local --lang typescript > types/database.ts
+```
+
+```ts
+import { createClient } from "npm:@supabase/supabase-js@^2.47.10";
+import { Database } from "./types/database.ts";
+
+const supabase = createClient<Database>();
+const result = await supabase.rpc('some_function'); // <- should be auto suggested by your editor
+```
+
+<details>
+<summary>Editor visual example</summary>
+
+<img width="1563" height="623" alt="Image" src="https://github.com/user-attachments/assets/7ee42914-57df-40c9-90eb-6236ae876e51" />
+
+<img width="1136" height="206" alt="Image" src="https://github.com/user-attachments/assets/b75aab0e-449c-4dae-baa0-6b442a2714eb" />
+
+</details>
+
+--- Comment 2 by SharonNg98 ---
+Thanks to @kallebysantos answer although there is still some misteak.
+But it's solved now. Thanks everybody.

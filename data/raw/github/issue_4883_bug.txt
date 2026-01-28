@@ -1,0 +1,128 @@
+Issue #4883: Permissions denied for table using API but works with SupabaseClient
+URL: https://github.com/supabase/supabase/issues/4883
+Labels: bug, p3
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+When trying to access data from some API endpoints, like this: /rest/v1/leads?select=* I get this error:
+```
+{
+    "message": "permission denied for table leads",
+    "code": "42501",
+    "hint": null,
+    "details": null
+}
+```
+
+when doing the same using JS client like this:
+```
+const { data, error } = await supabase
+            .from('leads')
+            .select()
+
+```
+I successfully get the data. **Although enabling or disabling RLS has no impact.**
+
+I'm using the same anon API key in both situations.
+
+## To Reproduce
+
+I am creating these tables using the following function:
+
+```
+BEGIN
+EXECUTE format('
+      CREATE TABLE IF NOT EXISTS %I (
+       id serial PRIMARY KEY,
+       created_at date default current_timestamp
+      )', my_table);
+
+EXECUTE format('
+      ALTER TABLE %I ENABLE ROW LEVEL SECURITY;
+', my_table);    
+
+END
+```
+
+I tried to enable and disable RLS from UI and from SQL editor but didn't change anything.
+I also tried to use the service role KEY when using API, but the same error above showed.
+
+When creating the tables from the UI, everything seems to work as intended.
+
+
+## Expected behavior
+
+I was expecting to be able to create tables programmatically from the client-side so I'm trying to do it using functions.
+I'm using the function like this:
+```
+ const { data, error } = await supabase
+            .rpc('create_table', { my_table: table_name })
+```
+
+Am I missing something?
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by jperestrelo ---
+**Update**
+I think I understand what's going on... when creating from the admin UI it creates a set of privileges on the table. While my function is not doing it.
+
+So I'm guessing that there is a lot going on under the hood when creating a table from the UI. There is any recommended way that I can create a table using functions and maintain the same functionalities as if it was being created in the UI?
+
+Thanks
+
+--- Comment 2 by stephanbogner ---
+**I am not sure if my issue is related:**
+Even if I disable RLS I can't update a row on a certain table. On other tables it works perfectly.
+
+**I am using:**
+```
+const { data, error } = await supabase
+  .from(tableName)
+  .update(newRowData)
+  .eq(columnName, columnValueAtRow)
+  
+  if (error) {
+      console.error(error);
+  }
+  return { data, error }
+```
+
+**I always get:**
+`{message: 'permission denied for table http_request_queue', code: '42501', hint: null, details: null}`
+
+**The weird thing is:**
+I am pretty sure it worked before the holidays. In the meantime my instance got paused due to inactivity, but not sure if that causes the issue.
+
+Before I was using `1.2.1` but with `1.29.1` it's the same result.
+
+--- Comment 3 by stephanbogner ---
+**Ok ... very weird. I even get this error if I try to edit the data in the UI:**
+
+<img width="740" alt="Screenshot 2022-01-11 at 16 14 35" src="https://user-images.githubusercontent.com/7897006/148969239-4bf0ea69-6366-4fb6-8874-8c891a7d28d5.png">
+
+<img width="700" alt="Screenshot 2022-01-11 at 16 13 32" src="https://user-images.githubusercontent.com/7897006/148969130-e5c9296e-b789-45e4-a5ae-8c9c8e6f3942.png">
+
+--- Comment 4 by tilmann ---
+I ran in the same error. (permission denied for table http_request_queue)
+
+**My finding**: It seems to be connected with the functions hooks ALPHA. After removing the hooks for the table that throws the error an insert was possible again.
+
+Adding the hook again leads to the same error.
+
+My instance was paused due to the holidays as well. 
+
+Any ideas except setting up a new instance?   
+
+--- Comment 5 by dragarcia ---
+Hi guys 👋 
+
+If you guys haven't, would you mind sending over a ticket specifying the affected project over at https://app.supabase.io/support/new, and we'll take a closer look at each one from there.
+
+Thanks!

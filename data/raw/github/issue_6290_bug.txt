@@ -1,0 +1,77 @@
+Issue #6290: Realtime Subscriptions No Longer Working Locally With Custom JWT
+URL: https://github.com/supabase/supabase/issues/6290
+Labels: bug, wontfix
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+Local subscriptions are not working with the provided "self-hosted" `docker-compose.yml`, even though replication is enabled on all tables.
+
+## To Reproduce
+
+1. Clone this repo
+2. Run the local docker-compose setup as is described in the documentation, including ENV var setup
+3. Realtime subscriptions (from js client) succeed -- but are not broadcasted.
+
+## Expected behavior
+
+Realtime subscriptions should broadcast correctly.
+
+## Screenshots
+
+If applicable, add screenshots to help explain your problem.
+
+## System information
+
+- OS: macOS
+- Browser: chrome
+- Version of supabase-js: "@supabase/supabase-js": "^1.33.3",
+- Version of Node.js: 16.7.0
+
+## Additional context
+
+- I dug through the logs for realtime, and was able to confirm that it was *trying* to subscribe to the things I was asking it for from the frontend.
+- I couldn't see any evidence of failures in the Realtime logs. However, I also wasn't able to see any evidence of successful subscriptions at the postgres-level when I audited the postgres database using techniques here: https://dba.stackexchange.com/questions/224490/using-postgresql-logical-replication-how-do-you-know-that-the-subscriber-is-cau
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by w3b6x9 ---
+@Marviel Thanks for reporting this issue! I'll investigate shortly and post here with my findings.
+
+--- Comment 2 by Marviel ---
+@w3b6x9 no problem! Nice work on Realtime btw, been digging through the elixir and enjoying it.
+
+As an aside, I added this tiny PR to the Realtime repo which was helpful when I was debugging my local build. Not sure how interested in it you'd be: https://github.com/supabase/realtime/pull/248
+
+--- Comment 3 by w3b6x9 ---
+@Marviel I spun up `docker-compose` and everything worked for me.
+
+- Did you set a JWT secret and pass in a JWT signed by that secret when joining the subscription? Can you check your local database's `realtime.replication` table and see if there are any records?
+- You mentioned "replication is enabled on all tables." How were you able to do this? If you check your database publication tables, what do you get? You can check by running `select * from pg_publication_tables;`.
+
+--- Comment 4 by Marviel ---
+Okay, thanks for the followup... good sanity check to let me know I'm doing something wrong.
+
+I do have a JWT Secret, and I'm generating a JWT using that secret.  I know I'm signing correctly because I'm able to make normal requests fine... it's just the realtime stuff that isn't working. I'll investigate more here though and ensure I'm not doing anything silly.
+
+--- Comment 5 by Marviel ---
+Well, that might be part of my problem. I tried to make this happen the naive way, which may have messed up my subscriptions:
+
+
+```
+begin; 
+  -- remove the realtime publication
+  drop publication if exists supabase_realtime; 
+
+  -- re-create the publication, enable for all tables.
+  CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
+commit;
+```
+
+Playing with this piece now, but will probably be a few days before I can get back to confirm it's the culprit.
+

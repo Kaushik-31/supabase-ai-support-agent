@@ -1,0 +1,94 @@
+Issue #190: Complicated PSQL Queries
+URL: https://github.com/supabase/supabase/issues/190
+Labels: question
+Status: closed
+================================================================================
+
+PROBLEM:
+# Question
+
+Exploring Supabase for a project now, so far it's easy to use. Thanks for this!
+
+Since it's using Postgres, I was wondering if it is possible to do complicated queries with it? Something like a subquery in the `from()` clause?
+
+## Additional context
+
+I'm trying to get the months list from a table (events) based on it's start date. Used [this](https://stackoverflow.com/questions/31448656/how-to-generate-month-list-in-postgresql) as the reference. Here's the query I came up with.
+
+```sql
+SELECT to_char(generate_series(event_months.min, event_months.max, '1 month'), 'Mon-YY') AS months
+FROM (
+  SELECT
+    date_trunc('month', min(start_date)) AS min,
+    date_trunc('month', max(start_date)) AS max
+  FROM events
+) event_months
+```
+
+I tried running it in the SQL console of Supabase and it produced the correct results:
+<img width="1360" alt="Screen Shot 2020-09-09 at 9 26 15 PM" src="https://user-images.githubusercontent.com/13959651/92605319-2aa2d080-f2e4-11ea-9465-0e9753ff10f2.png">
+
+When I tried running it in my project though, it produced a Not Found error.
+
+```js
+await supabase
+  .from("SELECT date_trunc('month', min(start_date)) AS min, date_trunc('month', max(start_date)) AS max FROM events")
+  .select("to_char(generate_series(min, max, '1 month'), 'Mon-YY') AS months")
+```
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kiwicopple ---
+Unfortunately you can't do it that way as it would probably open up the possibility of SQL injection.
+
+But it can be done! You can just create a view on your data, and you can `select()` that. Something like this:
+
+```sql
+CREATE VIEW public.events_by_month AS
+SELECT to_char(generate_series(event_months.min, event_months.max, '1 month'), 'Mon-YY') AS months
+FROM (
+  SELECT
+    date_trunc('month', min(start_date)) AS min,
+    date_trunc('month', max(start_date)) AS max
+  FROM events
+) event_months
+```
+
+then you can query it with `supabase-js`:
+
+```js
+const response = await supabase
+    .from('events_by_month')
+    .select('*')
+```
+
+Let me know if that works for your use-case!
+
+--- Comment 2 by jayehernandez ---
+Yes this works perfectly. Thanks for replying so quickly!
+
+--- Comment 3 by kiwicopple ---
+No probs! I'll close this for now but feel free to reopen if you have any questions
+
+--- Comment 4 by tawjaw ---
+@kiwicopple you can't enable Row level security on views right?
+
+In this case who is the user accessing the events table? Is it the user accessing the view from the client library auth.user? or the user who created the view (admin)?
+
+If there's row level security on the events table, does the view respect that? 
+
+--- Comment 5 by steve-chavez ---
+> If there's row level security on the events table, does the view respect that?
+
+@tawjaw Yes, as long you change the view owner to one that does not BYPASSRLS or is a SUPERUSER(like the admin that created the view).
+
+You could do that like:
+
+```sql
+ALTER VIEW events_by_month OWNER TO authenticated;
+```
+
+Reference: https://postgrest.org/en/v7.0.0/schema_structure.html#views
+
+(you could also create a dedicated role like in the reference)

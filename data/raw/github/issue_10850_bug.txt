@@ -1,0 +1,51 @@
+Issue #10850: Having e-mail auth provider enabled rate limiting other auth providers usage
+URL: https://github.com/supabase/supabase/issues/10850
+Labels: bug
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+Having e-mail auth provider enabled gives a 429 rate limit exceeded, despite using only Phone auth provider.
+
+## Describe the bug
+
+We had e-mail auth provider and phone auth provider enabled. (With e-mail auth not being used.) Once we started getting a spike in traffic for our SMS OTPs, we started getting a 429 rate limit exceeded, despite Twilio looking fine on our end. Once we disabled e-mail auth as a provider, everything was working normally again. 
+
+## To Reproduce
+
+1. Enable e-mail and phone auth providers,
+2. Try hitting rate limits that you would normally hit, but with phone SMSs,
+3. Get a 429 - Rate Limit Exceeded.
+4. Disable E-mail auth, and check that everything is working again.
+
+## Expected behavior
+
+Did not expect any rate limit issues.
+
+## System information
+
+- Browser: Chrome,
+- Version of "@supabase/supabase-js": "^2.1.1",
+- Version of Node.js: [e.g. 16.13.1]
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kiwicopple ---
+this was probably during the migration - fixed now.
+
+Thanks for reporting it @rohanmayya 
+
+--- Comment 2 by nestorbfgo ---
+Hi  I´m dealing with same, but it only doesn´t work with certain e-mails for example I have two e-mails , for example, a@gmail.com and b@gmail.com, with a@gmail.com I have  429 rate limit exceeded, but with b not, why is the reason ?
+
+--- Comment 3 by Ivaylo-Korakov ---
+I am developing my app and I am getting rate limited no matter what email I use
+
+--- Comment 4 by Axiom0599 ---
+same problem. Whenever I hit the submit button, I get this error that says Email rate limit exceeded.
+
+--- Comment 5 by aryankush25 ---
+I am also facing the same issue while using Supabase in Flutter.

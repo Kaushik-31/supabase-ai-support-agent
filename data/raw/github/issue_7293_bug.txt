@@ -1,0 +1,85 @@
+Issue #7293: Got an error PGRST102: Error in $: not enough input when inserting the data using supabase js
+URL: https://github.com/supabase/supabase/issues/7293
+Labels: bug, p2
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+We got a 400 error with Postgres error code `PGRST102` and `message: "Error in $: not enough input"` for a simple inserting call by using `supabase-js`. But after that, we check the supabase, we can see the new record. 
+
+## To Reproduce
+
+I have a `simple_test` table which uses to reproduce the bug with the structure below
+
+```sql
+create table simple_test (
+  id uuid DEFAULT uuid_generate_v4(),
+  name varchar(512) not null,
+
+  primary key (id)
+);
+```
+
+In the next.js site, it uses supabase to insert data
+
+```js
+supabase.from('simple_test').insert({ name: 'sample' })
+```
+
+After that, I use the Network tab in Chrome to see the request, it returns an error:
+
+```
+message: "Error in $: not enough input"
+```
+
+I tried to set up another supabase project, and the response is the same but including the code `PGRST102`.
+
+Not sure how to fix this bug because seem it's a simple call. Please help to point to me what I should do, thank you
+
+## Expected behavior
+
+The data was inserted successfully so the response should have an HTTP code should be 200 and include the inserted data.
+
+## Screenshots
+
+
+## System information
+
+- OS: macOS 12.4
+- Browser: Chrome 102.0.5005.115 
+- Version of supabase-js: 1.35.3
+- Version of Node.js: 16.14.2
+
+## Additional context
+
+Thank you so much! 
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by phuochau ---
+Now I got the same issue with any inserting and updating calls in my project
+
+--- Comment 2 by phuochau ---
+I tried some tests:
+
+- If I request as a guest, it will be successful.
+- If I request as a user (logged in by a magic link), it will be successful.
+- **If I request as a user (logged in by Github), it will be failed.**
+
+Any thoughts?
+
+--- Comment 3 by perhp ---
+I get the same error logged in with facebook (havent tried others). This issue causes serious problems within our platform, and seems to be a supabase issue, as we haven't made changes to the part that started failing.
+
+--- Comment 4 by steve-chavez ---
+@phuochau Can you share your project ref to steve@supabase.io?
+
+> message: "Error in $: not enough input"
+
+That error only happens when the insert body is empty. I can't reproduce locally(with the snippet you provided) so I'd like to check your project.
+
+--- Comment 5 by steve-chavez ---
+@perhp Can you share your enviroment(next.js?) and a snippet too? 

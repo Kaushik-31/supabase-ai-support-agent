@@ -1,0 +1,142 @@
+Issue #7772: Prisma unable to connect to Supabase database
+URL: https://github.com/supabase/supabase/issues/7772
+Labels: bug, wontfix
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+Prisma npx commands and Prisma Studio are unable to connect to the Supabase database. 
+
+Running `npx prisma migrate dev` yields in the following error message:
+```
+> npx prisma migrate dev
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "postgres", schema "public" at "db.xltfmrlaegzuuopvypxx.supabase.co:5432"
+
+Error: P1001: Can't reach database server at `db.xltfmrlaegzuuopvypxx.supabase.co`:`5432`
+
+Please make sure your database server is running at `db.xltfmrlaegzuuopvypxx.supabase.co`:`5432`.
+```
+I followed the advice at https://github.com/prisma/prisma/issues/13807 and I was indeed able to migrate an initial db after creating a temporary table. 
+
+But after running Prisma Studio I am unable to add any entries and once more unable to migrate a database:
+ 
+![image](https://user-images.githubusercontent.com/53790060/179614060-173a70b6-55cd-4df7-a610-085d988b445b.png)
+```
+Type: undefined
+Message: 
+Invalid `prisma.home.create()` invocation:
+
+
+  Can't reach database server at `db.xltfmrlaegzuuopvypxx.supabase.co`:`5432`
+
+Please make sure your database server is running at `db.xltfmrlaegzuuopvypxx.supabase.co`:`5432`.
+
+Code: undefined
+
+Query:
+[object Object]
+```
+I made sure that my database password contains no special characters as #4161 discussed. 
+
+Using psql to connect to the data base shows no issues either and shows the appropriate tables:
+```
+> psql -h db.xltfmrlaegzuuopvypxx.supabase.co -p 5432 -U postgres -d postgres
+Password for user postgres: 
+psql (13.4, server 14.1)
+WARNING: psql major version 13, server major version 14.
+         Some psql features might not work.
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+Type "help" for help.
+
+postgres=> \c postgres
+psql (13.4, server 14.1)
+WARNING: psql major version 13, server major version 14.
+         Some psql features might not work.
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+You are now connected to database "postgres" as user "postgres".
+postgres=> \dt
+               List of relations
+ Schema |        Name        | Type  |  Owner   
+--------+--------------------+-------+----------
+ public | Home               | table | postgres
+ public | _prisma_migrations | table | postgres
+(2 rows)
+```
+![image](https://user-images.githubusercontent.com/53790060/179614727-99f38a3a-8d31-4981-8e26-2214a2848315.png)
+
+
+## System information
+
+- OS: Fedora 35
+- Browser: Brave v1.41.96
+- Version of Node.js: [16.16.0]
+
+## Additional context
+
+Prisma schema:
+```
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Home {
+  id          String   @id @default(cuid())
+  image       String?
+  title       String
+  description String
+  price       Float
+  guests      Int
+  beds        Int
+  baths       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+```
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kristianeboe ---
++1 
+
+My supabase connection works fine from vercel, but not locally. I'm pretty sure this worked a few weeks ago. 
+
+Double checked my steps with this today https://supabase.com/docs/guides/integrations/prisma and still got the same results :/ 
+
+Using docker in the meantime
+
+--- Comment 2 by kiwicopple ---
+> Using psql to connect to the data base shows no issues either and shows the appropriate tables
+
+>  I'm pretty sure this worked a few weeks ago.
+
+Perhaps there was a change on the Prisma side? Did you also open this issue with the Prisma team? I'll also give them a ping and see if they have any ideas
+
+--- Comment 3 by kristianeboe ---
+Prisma did release a  4.0 not long ago, but I have not upgraded yet...
+
+--- Comment 4 by kiwicopple ---
+could you please share which version you're running @kristianeboe ?
+
+--- Comment 5 by kristianeboe ---
+"@prisma/client": "^3.15.2",
+"prisma": "^3.15.2"
+
+Hope this helps :) I will soon upgrade to Prisma 4 and see if that fixes it too.
+My supabase host is 
+@db.kcijjrtgrlbfuotwpcme.supabase.co:5432
+btw

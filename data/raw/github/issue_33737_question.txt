@@ -1,0 +1,24 @@
+Issue #33737: SQLFluff
+URL: https://github.com/supabase/supabase/issues/33737
+Labels: question, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+
+
+This is by far the best SQL formatter I've tried (that works with VSCode). Since Supabase already includes linting suggestions in their documentation and AI prompts, why not release a recommended sqlfluff config which will let us easily auto-format our SQL files!
+
+https://sqlfluff.com/
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by encima ---
+Hey, thanks for opening!
+As Supabase is "just Postgres", there is not really any special config that would be needed for SQLFluff, you just need to specify the [dialect as postgres](https://docs.sqlfluff.com/en/stable/reference/dialects.html#postgresql)
+
+--- Comment 2 by Revadike ---
+> Hey, thanks for opening! As Supabase is "just Postgres", there is not really any special config that would be needed for SQLFluff, you just need to specify the [dialect as postgres](https://docs.sqlfluff.com/en/stable/reference/dialects.html#postgresql)
+
+I know it's not needed, it will just be a nice to have. I know supabase mentions some formatting recommendations in the docs. Having the ability to auto-format to follow these would just be convenient.

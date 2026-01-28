@@ -1,0 +1,84 @@
+Title: Getting Started
+URL: https://supabase.com/docs/guides/getting-started
+================================================================================
+
+Getting Started
+Features
+A non-exhaustive list of features that Supabase provides for every project.
+Architecture
+An overview of Supabase's architecture and product principles.
+Local Development
+Use the Supabase CLI to develop locally and collaborate between teams.
+Use cases
+#
+AI, Vectors, and embeddings
+Build AI-enabled applications using our Vector toolkit.
+Subscription Payments (SaaS)
+Clone, deploy, and fully customize a SaaS subscription application with Next.js.
+Partner Gallery
+Postgres full-text search, image storage, and more.
+Framework quickstarts
+#
+React
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a React app.
+Next.js
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a Next.js app.
+Nuxt
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a Nuxt app.
+Hono
+Learn how to create a Supabase project, add some sample data to your database, secure it with auth, and query the data from a Hono app.
+RedwoodJS
+Learn how to create a Supabase project, add some sample data to your database using Prisma migration and seeds, and query the data from a RedwoodJS app.
+Flutter
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a Flutter app.
+iOS SwiftUI
+Learn how to create a Supabase project, add some sample data to your database, and query the data from an iOS app.
+Android Kotlin
+Learn how to create a Supabase project, add some sample data to your database, and query the data from an Android Kotlin app.
+SvelteKit
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a SvelteKit app.
+SolidJS
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a SolidJS app.
+Vue
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a Vue app.
+Refine
+Learn how to create a Supabase project, add some sample data to your database, and query the data from a Refine app.
+Web app demos
+#
+Next.js
+Learn how to build a user management app with Next.js and Supabase Database, Auth, and Storage functionality.
+React
+Learn how to build a user management app with React and Supabase Database, Auth, and Storage functionality.
+Vue 3
+Learn how to build a user management app with Vue 3 and Supabase Database, Auth, and Storage functionality.
+Nuxt 3
+Learn how to build a user management app with Nuxt 3 and Supabase Database, Auth, and Storage functionality.
+Angular
+Learn how to build a user management app with Angular and Supabase Database, Auth, and Storage functionality.
+RedwoodJS
+Learn how to build a user management app with RedwoodJS and Supabase Database, Auth, and Storage functionality.
+Svelte
+Learn how to build a user management app with Svelte and Supabase Database, Auth, and Storage functionality.
+SvelteKit
+Learn how to build a user management app with SvelteKit and Supabase Database, Auth, and Storage functionality.
+Refine
+Learn how to build a user management app with Refine and Supabase Database, Auth, and Storage functionality.
+Mobile tutorials
+#
+Flutter
+Learn how to build a user management app with Flutter and Supabase Database, Auth, and Storage functionality.
+Expo React Native
+Learn how to build a user management app with Expo React Native and Supabase Database, Auth, and Storage functionality.
+Expo React Native Social Auth
+Learn how to implement social authentication in an app with Expo React Native and Supabase Database and Auth functionality.
+Android Kotlin
+Learn how to build a product management app with Android and Supabase Database, Auth, and Storage functionality.
+iOS Swift
+Learn how to build a user management app with iOS and Supabase Database, Auth, and Storage functionality.
+Ionic React
+Learn how to build a user management app with Ionic React and Supabase Database, Auth, and Storage functionality.
+Ionic Vue
+Learn how to build a user management app with Ionic Vue and Supabase Database, Auth, and Storage functionality.
+Ionic Angular
+Learn how to build a user management app with Ionic Angular and Supabase Database, Auth, and Storage functionality.
+Edit this page on GitHub

@@ -1,0 +1,89 @@
+Issue #33596: Supabase Authentication Token Cross-Instance Validation Issue
+URL: https://github.com/supabase/supabase/issues/33596
+Labels: question, needs-analysis, awaiting-details, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+<!-- 
+
+⚠️ We receive a lot of bug reports which have already been solved or discussed. If you are looking for help, please try these first:
+
+- Docs: https://docs.supabase.com
+- Discussions: https://github.com/supabase/supabase/discussions
+- Discord: https://discord.supabase.com
+
+Before opening a bug report, please verify the following: 
+
+-->
+
+- [x ] I confirm this is a bug with Supabase, not with my own application. 
+- [x ] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+
+
+When a user has a valid Supabase authentication token from Instance A (e.g., Web App X), this token is being incorrectly accepted as valid by Instance B (a separate Web App with SUpabase Auth) without proper validation.
+
+**Steps to reproduce:**
+1. Log into Instance A
+2. Access a separate Supabase application Instance B
+3. The application accepts the authentication token from Instance A as valid, despite it being from a completely different Supabase instance
+
+**Expected behavior:**
+- Each Supabase instance should only accept tokens that were issued by that specific instance
+- Tokens from other Supabase instances should be rejected as invalid
+- The `auth.getUser()` and `auth.getSession()` methods should validate the token against the current instance
+
+**Actual behavior:**
+- Tokens from any Supabase instance are being accepted as valid
+- `auth.getUser()` and `auth.getSession()` return successful responses with tokens from different instances
+- This allows users to potentially authenticate into applications using tokens from completely unrelated Supabase instances
+
+**Security Implications:**
+- Cross-instance token acceptance could lead to unauthorized access
+- Applications cannot reliably verify that a token was issued by their specific Supabase instance
+- Potential for session hijacking if users have active sessions on multiple Supabase instances
+
+**Library:**
+-Supabase JS (Client SDK, not SSR)
+
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by j4w8n ---
+I find it strange that getUser would do this since it makes a network request to the supabase instance backend to verify the jwt - which I have assumed gets validated against the jwt secret from that specific project.
+
+--- Comment 2 by j4w8n ---
+Question: are you storing the auth token with a custom name that happens to be the same for each instance? Because by default it stores the project id in the name, so I can't imagine that being picked up by another instance.
+
+--- Comment 3 by j4w8n ---
+I can confirm that solely depending on getSession to determine if there is a session - and using the same custom storage key for both instances - does trick my app into believing someone is logged in. However, none of my calls to the db yield any results since the jwt and user_id are wrong for the instance.
+
+Furthermore, calling getUser returns the below error; which makes sense to me since it should be validating the jwt against the wrong supabase instance.
+```bash
+{
+  data: { user: null },
+  error: AuthSessionMissingError: Auth session missing!
+}
+```
+
+--- Comment 4 by jimmy3574 ---
+Yeah it's strange. Essentially, I'm building an admin CMS for staging/prod instance. So Supabase setup is org then instance for prod, staging, admin cms. 
+
+Running locally, was logged in as a prod test user, terminated server, ran server for admin cms, (running on different ports fyi). Closed browser tab for prod instance, opened admin and I was logged in as the prod user. 
+
+No custom storage key. Different env variables. 
+
+`const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        console.log('User data:', user);
+        console.log('User error:', userError);`
+
+`23:41:59.698'User data:', user: { id: 'bf7...-d02a-46c6...11-6...93b57', aud: 'authenticated`
+
+
+--- Comment 5 by jimmy3574 ---
+Obviously with RLS etc was not able to do much but just found it to be a strange bug since it bypassed authguard so could navigate app etc. 

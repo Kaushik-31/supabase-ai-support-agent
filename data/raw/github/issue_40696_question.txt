@@ -1,0 +1,140 @@
+Issue #40696: Lovable cloud - Can't access Supabase or perform direct SQL execution from Lovable
+URL: https://github.com/supabase/supabase/issues/40696
+Labels: question, awaiting-details, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+I'm reaching out regarding a critical authentication issue in my project that's blocking user logins. I believe this requires database-level intervention as the auth schema is protected from direct modification.
+
+Project Details: Lovable Cloud
+Project ID: add ID here
+Severity: Critical (Users cannot authenticate)
+Issue: NULL values in auth.users.email_change column causing scan errors
+Problem Description
+Users are unable to log in due to PostgreSQL scan errors:
+
+Scan error on column index 8, name "email_change": 
+converting NULL to string is unsupported
+Root Cause
+The auth.users table contains records where the email_change column has NULL values instead of empty strings (''). The Supabase Auth system expects this field to be an empty string when no email change is pending, not NULL.
+
+This appears to be caused by our edge functions using supabaseAdmin.auth.admin.createUser() without explicitly setting the email_change parameter, which leaves it uninitialized as NULL instead of the expected empty string.
+
+Requested Action
+Could you please execute the following SQL to fix existing corrupted records?
+
+
+-- Fix existing corrupted records
+UPDATE auth.users 
+SET email_change = '' 
+WHERE email_change IS NULL;
+
+-- Verify fix
+SELECT COUNT(*) as corrupted_users 
+FROM auth.users 
+WHERE email_change IS NULL;
+When I attempt to run this migration myself, I receive:
+
+"message": "permission denied for schema auth"
+Impact
+
+Business Impact: Users cannot log in or access the system
+
+Users Affected: Unknown count (need query results to confirm)
+
+Workaround: None available - requires database-level fix
+
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kallebysantos ---
+Hi @elinas1966 💚
+Did you tried to run the SQL script above inside Supabase dashboard? Or somewhere else?
+
+<details>
+<summary>Supabase dashboard page example</summary>
+
+<img width="2930" height="1310" alt="Image" src="https://github.com/user-attachments/assets/6d62114c-6331-4974-a583-b4db6f1173e6" />
+
+</details>
+
+Also, your issue seems to be a bad implementation logic of your application. Be aware that calling `.auth.admin.createUser()` requires extra caution, since it runs in a more privileged away. If your intend is to just sign up a new user, like in a create new account form, the recommended is to use [`auth.signUp()`](https://supabase.com/docs/guides/auth/passwords#signing-up-with-an-email-and-password) or any other of its variants depending on your auth flow.
+
+Presuming that you'd a bad logic implementation code, the issue founded is relative to bad records on your database. So my advise is to run the SQL script directly from your Supabase dashboard
+
+--- Comment 2 by elinas1966 ---
+Thank you for your email.
+I am running Lovable cloud, which apparently doesn't provide sql access, which I wish it did.
+Trying to run the sql myself isn't possible via lovable ai chat.
+I have a recommendation on to prevent in the future, which I will implement. For now, I am blocked.
+Also, I am not a programmer, more of an entrepreneur with SaaSy ideas 🙂
+
+How should I proceed?
+Peter
+________________________________
+From: Kalleby Santos ***@***.***>
+Sent: Friday, November 21, 2025 4:09 PM
+To: supabase/supabase ***@***.***>
+Cc: Peter ***@***.***>; Mention ***@***.***>
+Subject: Re: [supabase/supabase] database-level issue requiring direct SQL execution on the auth schema (using Lovable cloud) (Issue #40696)
+
+[https://avatars.githubusercontent.com/u/105971119?s=20&v=4]kallebysantos left a comment (supabase/supabase#40696)<https://github.com/supabase/supabase/issues/40696#issuecomment-3564595013>
+
+Hi @elinas1966<https://github.com/elinas1966> 💚
+Did you tried to run the SQL script above inside Supabase dashboard? Or somewhere else?
+
+Supabase dashboard page example image.png (view on web)<https://github.com/user-attachments/assets/6d62114c-6331-4974-a583-b4db6f1173e6>
+
+Also, your issue seems to be a bad implementation logic of your application. Be aware that calling .auth.admin.createUser() requires extra caution, since it runs in a more privileged away. If your intend is to just sign up a new user, like in a create new account form, the recommended is to use auth.signUp()<https://supabase.com/docs/guides/auth/passwords#signing-up-with-an-email-and-password> or any other of its variants depending on your auth flow.
+
+Presuming that you'd a bad logic implementation code, the issue founded is relative to bad records on your database. So my advise is to run the SQL script directly from your Supabase dashboard
+
+—
+Reply to this email directly, view it on GitHub<https://github.com/supabase/supabase/issues/40696#issuecomment-3564595013>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/AIFV4OD63KIYQP4RZO3OK4D3555QPAVCNFSM6AAAAACM27S6MKVHI2DSMVQWIX3LMV43OSLTON2WKQ3PNVWWK3TUHMZTKNRUGU4TKMBRGM>.
+You are receiving this because you were mentioned.Message ID: ***@***.***>
+
+
+--- Comment 3 by kallebysantos ---
+Sure! The lovable chat communicates with Supabase by using the MCP apis. Is possible that SQL queries that you execute via chat are using the `runQuery` endpoint that for safe reasons only supports read-only operations.
+
+You should try to enter directly from Supabase dashboard at https://supabase.com/dashboard website. Then after login, select your organisation as well the current project you've working on.
+
+After selecting your project, you should see on left side menu, an option "Sql editor", it should open a page just like my previous screenshot.
+
+All queries that you run directly from Dashboard are privileged by default, so you should be able to change rows inside auth schema.
+
+--- Comment 4 by elinas1966 ---
+I would love to but I can't.
+The new lovable cloud does not provide ANY access and the command line says only a Supabase admin can run the cleanup sql. This would then allow for an update to prevent this error from occurring in the future.
+Weird thing is that I requested the lovable AI to create test data and this is how I believe this problem occured.
+
+________________________________
+From: Kalleby Santos ***@***.***>
+Sent: Friday, November 21, 2025 4:26 PM
+To: supabase/supabase ***@***.***>
+Cc: Peter ***@***.***>; Mention ***@***.***>
+Subject: Re: [supabase/supabase] database-level issue requiring direct SQL execution on the auth schema (using Lovable cloud) (Issue #40696)
+
+[https://avatars.githubusercontent.com/u/105971119?s=20&v=4]kallebysantos left a comment (supabase/supabase#40696)<https://github.com/supabase/supabase/issues/40696#issuecomment-3564639523>
+
+Sure! The lovable chat communicates with Supabase by using the MCP apis. Is possible that SQL queries that you execute via chat are using the runQuery endpoint that for safe reasons only supports read-only operations.
+
+You should try to enter directly from Supabase dashboard at https://supabase.com/dashboard website. Then after login, select your organisation as well the current project you've working on.
+
+After selecting your project, you should see on left side menu, an option "Sql editor", it should open a page just like my previous screenshot.
+
+All queries that you run directly from Dashboard are privileged by default, so you should be able to change rows inside auth schema.
+
+—
+Reply to this email directly, view it on GitHub<https://github.com/supabase/supabase/issues/40696#issuecomment-3564639523>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/AIFV4OBSHUX3A3CBEFHIVSD3557ORAVCNFSM6AAAAACM27S6MKVHI2DSMVQWIX3LMV43OSLTON2WKQ3PNVWWK3TUHMZTKNRUGYZTSNJSGM>.
+You are receiving this because you were mentioned.Message ID: ***@***.***>
+
+
+--- Comment 5 by kallebysantos ---
+Hi @elinas1966 
+May you execute the SQL directly from Supabase dashboard? – outside lovable
+
+https://supabase.com/dashboard

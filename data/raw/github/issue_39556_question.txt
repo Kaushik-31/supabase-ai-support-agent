@@ -1,0 +1,98 @@
+Issue #39556: Persistent DNS Resolution Failure (Name or service not known) for New Projects
+URL: https://github.com/supabase/supabase/issues/39556
+Labels: question, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+[x] I confirm this is a bug with Supabase, not with my own application.
+
+[x] I confirm I have searched the Docs, GitHub Discussions, and Discord.
+
+<Describe the bug
+Creating new projects results in hostnames that cannot be resolved via DNS. Both psql and ping fail with a "Name or service not known" error. This issue has occurred across three separate, newly created projects and persists across different networks.
+
+To Reproduce
+Create a new, free-tier project in the Supabase dashboard.
+
+Go to Project Settings -> Database -> Connection string.
+
+Copy the Host parameter.
+
+Attempt to ping the host from a local machine terminal.
+
+See the "Name or service not known" error.
+
+Expected behavior
+The ping command should successfully resolve the hostname to an IP address, and the psql connection should be successful.
+
+clean.@cleandeMacBook-Air ~ % dig @1.1.1.1 db.cvvbsmovwrohnpsdolda.supabase.co
+        
+; <<>> DiG 9.10.6 <<>> @1.1.1.1 db.cvvbsmovwrohnpsdolda.supabase.co
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+clean.@cleandeMacBook-Air ~ % psql "postgresql://postgres:W5uS20OIhitNd9pL@db.cvvbsmovwrohnpsdolda.supabase.co:5432/postgres"
+zsh: command not found: psql
+clean.@cleandeMacBook-Air ~ % psql "postgresql://postgres:W5uS20OIhitNd9pL@db.cvvbsmovwrohnpsdolda.supabase.co:5432/postgres"
+psql: error: could not translate host name "db.cvvbsmovwrohnpsdolda.supabase.co" to address: nodename nor servname provided, or not known
+clean.@cleandeMacBook-Air ~ % dig @1.1.1.1 db.cvvbsmovwrohnpsdolda.supabase.co
+
+; <<>> DiG 9.10.6 <<>> @1.1.1.1 db.cvvbsmovwrohnpsdolda.supabase.co
+; (1 server found)
+;; global options: +cmd
+;; connection timed out; no servers could be reached
+clean.@cleandeMacBook-Air ~ % ping db.cvvbsmovwrohnpsdolda.supabase.co
+ping: cannot resolve db.cvvbsmovwrohnpsdolda.supabase.co: Unknown host
+
+
+
+
+
+## Screenshots
+
+<img width="1308" height="639" alt="Image" src="https://github.com/user-attachments/assets/ada82090-f6e9-468c-8de8-3cd0bd442a20" />
+
+<img width="1206" height="253" alt="Image" src="https://github.com/user-attachments/assets/d4b6e706-3d2c-4d5b-8d59-103077699b58" />
+
+If applicable, add screenshots to help explain your problem.
+
+## System information
+
+- OS: [e.g. macOS]
+- Browser (if applies) [chrome]
+
+
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by aantti ---
+Can you try
+`% dig @1.1.1.1 db.cvvbsmovwrohnpsdolda.supabase.co aaaa` ?
+
+Should be along the lines of:
+
+```
+[..]
+;; ANSWER SECTION:
+db.cvvbsmovwrohnpsdolda.supabase.co. 30	IN AAAA	2600:1f16:1cd0:332d:cab1:cfe6:5031:6d4e
+[..]
+
+% telnet -6 2600:1f16:1cd0:332d:cab1:cfe6:5031:6d4e 5432 
+Trying 2600:1f16:1cd0:332d:cab1:cfe6:5031:6d4e...
+Connected to 2600:1f16:1cd0:332d:cab1:cfe6:5031:6d4e.
+Escape character is '^]'.
+```
+
+--- Comment 2 by linyangqing99 ---
+Thank aantti! I solve it! 
+need to open the IPV6~
+
+--- Comment 3 by aantti ---
+No problem! Yeah, it's IPv6 for the _direct connection_ to the database. Poolers are accessible via IPv4.
+
+--- Comment 4 by Hallidayo ---
+Hi, going to move to a discussion for if others have the issue. Thanks @aantti for the fix!

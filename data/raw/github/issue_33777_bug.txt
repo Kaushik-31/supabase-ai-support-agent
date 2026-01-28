@@ -1,0 +1,77 @@
+Issue #33777: AI Assistant doesn't work 401 - self hosted
+URL: https://github.com/supabase/supabase/issues/33777
+Labels: bug, self-hosted, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+- [X] I confirm this is a bug with Supabase, not with my own application. 
+- [X] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+
+I have configured the OpenAI API key, and the project correctly detects it since the input panel is unlocked, allowing me to enter messages. However, every request to /api/ai/sql/generate-v3 results in a 401 Unauthorized error. Upon inspecting the logs, I noticed that the Authorization header in the request is empty.
+
+## To Reproduce
+
+Set up the OpenAI API key in the environment variables.
+Start the Supabase Studio.
+Attempt to use the AI-powered SQL generation feature.
+Observe that the request to /api/ai/sql/generate-v3 fails with a 401 Unauthorized error.
+Check the logs and confirm that the Authorization header in the request is missing.
+Expected Behavior:
+The request should include a valid Authorization header, allowing successful interaction with the OpenAI API.
+
+Observed Behavior:
+The request to /api/ai/sql/generate-v3 is sent with an empty Authorization header, leading to a 401 Unauthorized response.
+Running /api/ai/sql/check-api-key confirms that the API key is correctly set and recognized.
+The issue appears to be specific to /generate-v3, as it does not pick up the key when making the request.
+
+## Expected behavior
+AI Assistant works after configuring OPENAI_API_KEY
+
+## Screenshots
+
+<img width="594" alt="Image" src="https://github.com/user-attachments/assets/76bd1122-f664-4117-a009-4352df92a3b6" />
+
+## Additional context
+I verified that the API key is correctly set inside the supabase-studio container.
+The issue persists despite multiple attempts to reconfigure the environment.
+I searched for similar issues but couldn’t find a reported case.
+This appears to be an internal bug within Supabase Studio. Any guidance or fixes would be appreciated.
+
+Versions: 
+supabase-studio → supabase/studio:20250219-7101314
+supabase-kong → kong:2.8.1
+supabase-auth → supabase/gotrue:v2.167.0
+supabase-rest → postgrest/postgrest:v12.2.0
+supabase-realtime → supabase/realtime:v2.34.7
+supabase-storage → supabase/storage-api:v1.14.5
+supabase-imgproxy → darthsim/imgproxy:v3.8.0
+supabase-meta → supabase/postgres-meta:v0.84.2
+supabase-edge-functions → supabase/edge-runtime:v1.67.0
+supabase-analytics → supabase/logflare:1.4.0
+supabase-db → supabase/postgres:15.8.1.020
+supabase-vector → timberio/vector:0.28.1-alpine
+supabase-pooler → supabase/supavisor:1.1.56
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by recepkocur ---
++1
+
+--- Comment 2 by Arna-Maity ---
+Having the same issue. On the same version of supabase studio *supabase/studio:20250219-7101314*
+
+--- Comment 3 by Krobys ---
+New version `supabase/studio:20250224-d10db0f` - **issue still here.**
+
+--- Comment 4 by sunquangang ---
+when will fix this bug ?
+
+--- Comment 5 by sunquangang ---
+> New version `supabase/studio:20250224-d10db0f` - **issue still here.**
+
++1

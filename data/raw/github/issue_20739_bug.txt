@@ -1,0 +1,94 @@
+Issue #20739: AuthApiError: Error sending confirmation mail
+URL: https://github.com/supabase/supabase/issues/20739
+Labels: bug, auth, awaiting-details
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+- [x] I confirm this is a bug with Supabase, not with my own application. 
+- [x] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+Sometimes, the sign up function returns the following error:
+`AuthApiError: Error sending confirmation mail
+      at handleError (webpack-internal:///(action-browser)/./node_modules/.pnpm/@supabase+gotrue-js@2.62.0/node_modules/@supabase/gotrue-js/dist/module/lib/fetch.js:46:11)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async _handleRequest (webpack-internal:///(action-browser)/./node_modules/.pnpm/@supabase+gotrue-js@2.62.0/node_modules/@supabase/gotrue-js/dist/module/lib/fetch.js:93:9)
+      at async _request (webpack-internal:///(action-browser)/./node_modules/.pnpm/@supabase+gotrue-js@2.62.0/node_modules/@supabase/gotrue-js/dist/module/lib/fetch.js:73:18)
+      at async SupabaseAuthClient.signUp (webpack-internal:///(action-browser)/./node_modules/.pnpm/@supabase+gotrue-js@2.62.0/node_modules/@supabase/gotrue-js/dist/module/GoTrueClient.js:236:23)
+      at async signUp (webpack-internal:///(action-browser)/./src/app/cadastro/_actions/index.ts:26:17)
+      at async project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:39:406
+      at async t4 (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:38:6379)
+      at async rk (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:39:25934)
+      at async doRender (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\base-server.js:1394:30)
+      at async cacheEntry.responseCache.get.routeKind (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\base-server.js:1555:28)
+      at async DevServer.renderToResponseWithComponentsImpl (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\base-server.js:1463:28)
+      at async DevServer.renderPageComponent (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\base-server.js:1856:24)
+      at async DevServer.renderToResponseImpl (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\base-server.js:1894:32)
+      at async DevServer.pipeImpl (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\base-server.js:911:25)
+      at async NextNodeServer.handleCatchallRenderRequest (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\next-server.js:271:17)
+      at async DevServer.handleRequestImpl (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\base-server.js:807:17)
+      at async project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\dev\next-dev-server.js:331:20
+      at async Span.traceAsyncFn (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\trace\trace.js:151:20)
+      at async DevServer.handleRequest (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\dev\next-dev-server.js:328:24)
+      at async invokeRender (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\lib\router-server.js:163:21)
+      at async handleRequest (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\lib\router-server.js:342:24)
+      at async requestHandlerImpl (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\lib\router-server.js:366:13)
+      at async Server.requestListener (project_folder\node_modules\.pnpm\next@14.1.0_@babel+core@7.23.7_react-dom@18.2.0_react@18.2.0\node_modules\next\dist\server\lib\start-server.js:140:13) {
+    __isAuthError: true,
+    status: 500
+  }`
+
+## To Reproduce
+
+Steps to reproduce the behavior, please provide code snippets or a repository:
+
+`const res = await supabase.auth.signUp({ email, password })`
+ 
+`if (res.error !== null) console.log({ signup_error: res.error })`
+
+## Expected behavior
+
+`res.error` should be `null`.
+
+## System information
+
+- OS: Windows 10
+- Browser Brave
+- Version of @supabase/ssr: ^0.0.10
+- Version of Node.js: v20.9.0
+
+## Additional context
+
+I'm using Next.js and Supabase's integration with Resend (as custom SMTP). It happens both on development and production, although in production there's less trace log information.
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by vladaman ---
+We have same issue
+
+--- Comment 2 by encima ---
+Thanks for opening! How often is this occurring? Is it upon every signup?
+
+--- Comment 3 by ghost ---
+# i'v got the same issue @ every signup
+
+**auth/v1/otp 500 (Internal Server Error)**
+
+```
+AuthApiError: Error sending confirmation mail
+    at handleError2 (@supabase_supabase-js.js?v=f9aeffef:4096:9)
+    at async _handleRequest2 (@supabase_supabase-js.js?v=f9aeffef:4131:5)
+    at async _request (@supabase_supabase-js.js?v=f9aeffef:4118:16)
+    at async SupabaseAuthClient.signInWithOtp (@supabase_supabase-js.js?v=f9aeffef:4991:27)
+```
+
+
+--- Comment 4 by komiljonovshohjahon ---
+Got the same issue when using custom smtp (brevo)
+
+--- Comment 5 by xbdh ---
+do not use stmp server  ，just paid。 this error cost me a day to debug . try to delete this project and  create new 

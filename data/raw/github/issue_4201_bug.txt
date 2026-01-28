@@ -1,0 +1,71 @@
+Issue #4201: Realtime Row Level security broken for database-wide subscriptions on PG12
+URL: https://github.com/supabase/supabase/issues/4201
+Labels: bug
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+**Affects**
+
+- PG12
+- PG14 (although these will only be new use-cases, so nobody should be experiencing the bug)
+
+**Unaffected**
+
+- PG13 users.  If you are experiencing problems with PG13, it is probably because your Policies are not allowing access (whereas previously Policies weren't applied). This is intended behaviour - your database security is working properly
+
+**Description**
+
+We're discovered an issue as a result of our Row-Level Security Realtime updates for that affects any database-wide publications. (eg `CREATE PUBLICATION supabase_realtime FOR ALL TABLES;`)
+
+
+## To Reproduce
+
+Realtime subscription may have stopped you are on PG12 and you have a Publication in your database set up like
+
+<img width="1467" alt="Screenshot 2021-12-01 at 7 49 05 PM" src="https://user-images.githubusercontent.com/10214025/144230037-9539750e-7092-40f3-9487-f3eeac582ed9.png">
+
+## Workaround
+
+Disable the `FULL` publication (red) and enable each table individually (green)
+<img width="1467" alt="Screenshot 2021-12-01 at 7 50 51 PM" src="https://user-images.githubusercontent.com/10214025/144229745-0747d54e-dc4e-4a5a-a286-a63e0cfdfd0b.png">
+
+
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kiwicopple ---
+Initial investigation seems to be that the wal2json extension is handling the list of tables differently
+
+Specifically, if we [pass it](https://github.com/supabase/realtime/blob/cd962d4d73c3bc26a2e21c8ffa8d2f22dc7223f5/server/lib/realtime/rls/replications.ex#L91) an empty string of tables in our PG13 version then it assumes "all tables" and if we pass it an empty string in our PG12/14 version it assume "no tables". 
+
+We determine the list of table that should be passed [here](https://github.com/supabase/realtime/blob/cd962d4d73c3bc26a2e21c8ffa8d2f22dc7223f5/server/lib/realtime/rls/replications.ex#L50). If the publication has been set up for all tables (eg: `CREATE PUBLICATION supabase_realtime FOR ALL TABLES;`) then this will return an empty string
+
+We are using the same version of wal2json in both PG13 & PG14, so it doesnt seem to be the wal2json version
+
+--- Comment 2 by batuhanbilginn ---
+Unfortunately, your workaround didn't work for me. I still don't get any data from the subscription :(  I tried to use another table that was not opened for real-time before and it did work.
+
+--- Comment 3 by inian ---
+Hi @batuhanbilginn, can you send your project ref to support@supabase.io Thanks
+
+--- Comment 4 by batuhanbilginn ---
+> 
+
+I've created a support ticket just now. I hope it works for you.
+
+--- Comment 5 by batuhanbilginn ---
+The issue might be related to RLS and authentication flow. I've enabled RLS with a policy of "only authenticated", I couldn't make any CRUD operation. If you guys enabled RLS on all real-time tables by default since the morning that might cause this error.
+
+The error that I get
+![Screenshot 2021-12-01 at 17 48 48](https://user-images.githubusercontent.com/86785488/144256049-95be0c12-d2fa-4252-9a5c-0ea21ae50ce2.png)
+
+My policy
+<img width="939" alt="Screenshot 2021-12-01 at 17 50 54" src="https://user-images.githubusercontent.com/86785488/144256410-e82d36d3-9e5e-4590-aaf6-6ec724152e65.png">
+
+

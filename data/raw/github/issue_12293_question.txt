@@ -1,0 +1,47 @@
+Issue #12293: Failed to send a request to the Edge Function
+URL: https://github.com/supabase/supabase/issues/12293
+Labels: question, edge functions
+Status: closed
+================================================================================
+
+PROBLEM:
+Why is the edge function so unstable? Almost more than half of the calls report an error 
+"Failed to send a request to the Edge Function"
+![Simulator Screen Shot - iPad Pro (12 9-inch) (6th generation) - 2023-02-08 at 15 48 14](https://user-images.githubusercontent.com/1118249/217968467-00b53bd0-e741-40ab-b757-db7616b7d8c3.png)
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by thorwebdev ---
+@gaodeng do you have any more information you can add, e.g.
+
+1. what's the code of your function
+2. What's your project id and your function name
+3. Any logs you are seeing, both in your dev environment and your supabase dashboard?
+4. What is the location that you're calling the function from?
+
+If you're not able to share this information publicly, please click Help > Contact support in your project dashboard. Thanks.
+<img width="659" alt="image" src="https://user-images.githubusercontent.com/5748289/218362128-f52cf931-68f6-4ad5-b54e-5f96e25c4dd0.png">
+
+
+--- Comment 2 by gaodeng ---
+@thorwebdev 
+
+Intermittent Issues: We've been experiencing issues with Supabase Edge Functions that seem to occur intermittently, regardless of the user's physical location or network connectivity. This has led us to believe that the issue is not related to local network conditions.
+
+Multiple Edge Functions Affected: While these issues are occurring, we have noticed that other Supabase APIs are functioning normally. However, it's not just one specific Edge Function that is experiencing issues. In fact, multiple Edge Functions are experiencing the same problems. This suggests that the issue may be related to Supabase infrastructure or platform-wide changes.
+
+As a workaround to address the issue, we have decided to migrate and replace all Edge Functions. 
+
+I previously reached out through the dashboard, but I didn't receive a response, Could you please check if you can find my previous message through the dashboard 
+
+
+
+--- Comment 3 by thorwebdev ---
+@gaodeng I'm afraid I'm not able to locate your ticket with your GitHub profile information. Could you help me by providing your project reference?
+
+--- Comment 4 by rafayahmed123 ---
+Did you end up finding a solution to this one? If so, please explain how you were able to achieve it.
+
+--- Comment 5 by Mykyta-Chernenko ---
+I experience the same issue, some requests, around 10% just fail with this error, different locations, different functions, different time, it's especially painful to see that users cannot subscribe to premium because of it 

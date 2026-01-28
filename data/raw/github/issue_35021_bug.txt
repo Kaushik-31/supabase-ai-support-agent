@@ -1,0 +1,153 @@
+Issue #35021: fail to deploy functions that use deno workspace packages
+URL: https://github.com/supabase/supabase/issues/35021
+Labels: bug, external-issue, to-triage
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+<!-- 
+
+⚠️ We receive a lot of bug reports which have already been solved or discussed. If you are looking for help, please try these first:
+
+- Docs: https://docs.supabase.com
+- Discussions: https://github.com/supabase/supabase/discussions
+- Discord: https://discord.supabase.com
+
+Before opening a bug report, please verify the following: 
+
+-->
+
+- [X] I confirm this is a bug with Supabase, not with my own application. 
+- [X] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+
+functions deploy fails to deploy functions with workspace dependencies
+
+## To Reproduce
+
+See the following project: https://codesandbox.io/p/devbox/elastic-chatterjee-forked-6496py?workspaceId=ws_VGZMLHNu2hWPYZLrXEYbsU
+
+you can see the supabase function in supabase/functions/example. Attempting to deploy this will fail. However `deno run index.ts` works as expected
+
+## Expected behavior
+
+`pnpx supabase functions deploy` deploys the function and resolves the workspace dependencies in the same way that deno does.
+
+## Screenshots
+
+If applicable, add screenshots to help explain your problem.
+
+## System information
+
+- Version of supabase-js: 2.20.12
+- Version of Node.js: v22.14.0
+
+## Additional context
+
+note that it fails with the following error:
+```
+Relative import path "@wovenlibs/core" not prefixed with / or ./ or ../ and not in import map
+```
+
+because deno can resolve the workspace packages without a scheme. But it seems supabase cannot resolve workspace files in the same way.
+
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by alita-moore ---
+I tried enabling deno_version 2 by setting the following:
+```
+[edge_runtime]
+deno_version = 2
+```
+in the config.toml
+
+which I think is on the right track, because it makes it so that I can use a package.json in the function definition. But then I get something like this despite the node_modules containing the relevant package installed (note this is installed using pnpm workspace packages)
+
+```
+/alitamoore/workspaces/monorepo/infra/supabase-core
+WARN: no SMS provider is enabled. Disabling phone login
+Bundling Function: sso
+Error: failed to create the graph
+
+Caused by:
+    Could not resolve "@wovenlibs/core", but found it in a package.json. Deno expects the node_modules/ directory to be up to date. Did you forget to run `deno install`?
+        at file:///Users/alitamoore/workspaces/monorepo/infra/supabase-core/supabase/functions/sso/index.ts:9:24
+error running container: exit 1
+Try rerunning the command with --debug to troubleshoot the error.
+```
+
+This could be due to the fact that the @wovenlibs/core is a symbolic link. What's weird about this is that the other npm packages are also symbolic links (e.g. express). So I'm not sure why it's failing to transfer over only the @wovenlibs/core package. 
+
+--- Comment 2 by alita-moore ---
+One thing I noticed is that when I downgrade my deno to version 2.0.0 I get the same error in my IDE so perhaps the deno version needs to be updated?
+
+```
+Relative import path "@wovenlibs/core" not prefixed with / or ./ or ../
+  hint: If you want to use a JSR or npm package, try running `deno add jsr:@wovenlibs/core` or `deno add npm:@wovenlibs/core`deno(import-prefix-missing)
+```
+
+--- Comment 3 by sweatybridge ---
+@nyannyacha might have some idea on this error
+
+also related to https://github.com/supabase/cli/issues/3047
+
+--- Comment 4 by nyannyacha ---
+Hello @alita-moore 😄 Can you tell me what version of the CLI you are using?
+@kallebysantos  recently merged [a PR](https://github.com/supabase/cli/pull/3417) seems related to this, and I'd like to bisect if it's a separate issue.
+
+--- Comment 5 by kallebysantos ---
+Hey @nyannyacha 💚 
+> ... recently merged https://github.com/supabase/cli/pull/3417 seems related to this
+
+Not really 😔 My PR only covers the module graph for local development and requires that `imports` need to be declared inside `supabase/functions/[slug]/deno.json(c)` or in the file defined at `config.toml`. 
+
+@alita-moore after looking your example, I could see that you have the following `import_map` config:
+
+<details>
+<summary>config.toml</summary>
+
+```toml
+[functions.example]
+enabled = true
+verify_jwt = true
+import_map = "./functions/example/deno.json"
+```
+
+</details>
+
+I'm not sure about `Deno's workspaces` neither `@scope/` but based on my understanding the CLI will try to use this `import_map` to resolve your function deps. Also outside imports feat may requires the `--use-api` while deploying like [described here](https://github.com/orgs/supabase/discussions/33613)
+
+---
+
+<details>
+<summary>Possible fix:</summary>
+
+Apply the following config to your `supabase/functions/[slug]/deno.json(c)`
+```json
+{
+    "imports":  {
+        "@scope/": "../../../libs/"
+    }
+}
+```
+> For large project with many functions, you can also define a global `import_map.json` then point it inside your `config.toml`. In a future release you'll be also able to define `importMap` field directly from your `supabase/functions/[slug]/deno.json(c)`
+
+Local development:
+```
+npx supabase@beta functions serve
+```
+
+Then deploy with:
+```
+npx supabase functions deploy --use-api 
+```
+
+I hope that it helps 💚
+
+</details>
+

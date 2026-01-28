@@ -1,0 +1,76 @@
+Issue #15930: Supabase auth (google) not working properly
+URL: https://github.com/supabase/supabase/issues/15930
+Labels: bug, auth
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+I've implement the supabase auth with google provider in a create-react-app enviroment. Now when i go through the signin process it redirects me to localhost with token instade of signin me in.
+
+## To Reproduce
+
+Steps to reproduce the behavior, please provide code snippets or a repository:
+
+Bootstrap CRA and implement supabase auth
+
+## Expected behavior
+
+A clear and concise description of what you expected to happen.
+
+## Screenshots
+
+<img width="830" alt="Screenshot 2023-07-20 at 8 46 37 PM" src="https://github.com/supabase/supabase/assets/33357137/2e07a0dd-55bd-4946-810f-5a4f4c5ff808">
+
+
+Initial Page
+
+<img width="837" alt="Screenshot 2023-07-20 at 8 47 02 PM" src="https://github.com/supabase/supabase/assets/33357137/d19044d2-491e-44dd-a0a1-ad315af588f2">
+
+This is after is signed in with, it just sent me session information in url hast. But doesn't actually log me in.
+
+<img width="759" alt="Screenshot 2023-07-20 at 8 40 17 PM" src="https://github.com/supabase/supabase/assets/33357137/3da7ffbf-7d2f-40ff-a8e8-71b086c4a856">
+
+I'm trying to get the user session but it doesn't returns anything.
+
+If applicable, add screenshots to help explain your problem.
+
+## System information
+
+- OS: masOs
+- Browser chrome
+- Version of supabase-js: 2.26.0
+- Version of Node.js: v20.3.1
+
+One thing i've tried the same with Nextjs it worked fine. I'm not sure what is the issue here.
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by mallahyari ---
+I have had the same problem. My app stopped working since last night. It shows a blank page when redirecting from google. However, when I use Firefox and open dev tools it works. it's so weird. 
+
+--- Comment 2 by j4w8n ---
+Possibly related. Or just a coincidence.
+
+https://github.com/supabase/supabase-js/issues/811
+
+--- Comment 3 by yeonjulee1005 ---
+I have a same error
+Not only google OAuth, but also another OAuth (kakao, apple, discord, google)
+After OAuth process, it just return url, no return user authenticate data🥲
+
+also, i'm using Nuxt3(latest)
+(with nuxt/supabase)(latest)
+
+you can show this problem, my side project..
+[dooramgi](https://dooramgi.kr)
+
+--- Comment 4 by egemenu ---
+I agree with @mallahyari, works on Firefox but not Chrome, weird.
+
+--- Comment 5 by GaryAustin1 ---
+Not really up on this but... You mention works on Firefox and not Chrome.  Is it possible you were running on Chrome, upgraded, or got upgraded and then it stopped.  Then went to Firefox with the "new versions" or a clean slate?   Maybe some local storage/cookie thing from an old version to new?   Just speculating.

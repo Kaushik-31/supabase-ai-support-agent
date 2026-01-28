@@ -1,0 +1,174 @@
+Issue #26785: API Gateway and postgresql logging not working for local development
+URL: https://github.com/supabase/supabase/issues/26785
+Labels: bug, cli, self-hosted, analytics, internal-fix
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+`API Gateway` and `postgresql` logging not working for local development. It is very frustrating that the supabase team is not working to improve the local development experience.
+
+I even updated the supabase. Deleted the complete docker images plus volumes and restarted the local environment. Still, it does not work. Also before that, I tried `supabase db reset` it also didn't work.
+
+## Expected behavior
+One should not get a 502 error.
+
+## Screenshots
+
+<img width="1440" alt="Screenshot 2024-05-27 at 5 08 14 AM" src="https://github.com/supabase/supabase/assets/21134455/4a6deeb9-45e5-4fc7-8e4a-65e290ec4369">
+<img width="1440" alt="Screenshot 2024-05-27 at 5 08 28 AM" src="https://github.com/supabase/supabase/assets/21134455/4567c831-c5f8-4ef4-a036-204593dfc06b">
+
+## My config.toml file
+```
+# A string used to distinguish different Supabase projects on the same host. Defaults to the working
+# directory name when running `supabase init`.
+project_id = "fcp-supabase"
+
+[api]
+# Port to use for the API URL.
+port = 54321
+# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
+# endpoints. public and storage are always included.
+schemas = []
+# Extra schemas to add to the search_path of every request.
+extra_search_path = ["extensions"]
+# The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
+# for accidental or malicious requests.
+max_rows = 50
+
+[db]
+# Port to use for the local database URL.
+port = 54322
+# The database major version to use. This has to be the same as your remote database's. Run `SHOW
+# server_version;` on the remote database to check.
+major_version = 15
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 15
+max_client_conn = 100
+
+[studio]
+# Port to use for Supabase Studio.
+port = 54323
+
+# Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
+# are monitored, and you can view the emails that would have been sent from the web interface.
+[inbucket]
+# Port to use for the email testing server web interface.
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+# The maximum file size allowed (e.g. "5MB", "500KB").
+file_size_limit = "50MB"
+
+[auth]
+# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
+# in emails.
+site_url = "http://localhost:5173"
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+additional_redirect_urls = ["https://localhost:5173", "http://localhost:54321"]
+# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 seconds (one
+# week).
+jwt_expiry = 3600
+# Allow/disallow new user signups to your project.
+enable_signup = true
+
+[auth.email]
+# Allow/disallow new user signups via email to your project.
+enable_signup = true
+# If enabled, a user will be required to confirm any email change on both the old, and new email
+# addresses. If disabled, only the new email is required to confirm.
+double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
+enable_confirmations = false
+
+# Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
+# `discord`, `facebook`, `github`, `gitlab`, `google`, `twitch`, `twitter`, `slack`, `spotify`.
+[auth.external.apple]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+
+[auth.external.github]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GITHUB_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GITHUB_SECRET)"
+redirect_uri = "http://localhost:54321/auth/v1/callback"
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+redirect_uri = "http://localhost:54321/auth/v1/callback"
+
+[auth.external.linkedin_oidc]
+enabled = true
+client_id = "env(SUPABASE_AUTH_LINKEDIN_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_LINKEDIN_SECRET)"
+redirect_uri = "http://localhost:54321/auth/v1/callback"
+
+[analytics]
+enabled = true
+port = 54327
+vector_port = 54328
+# Configure one of the supported backends: `postgres`, `bigquery`.
+backend = "postgres"
+
+[functions.admin]
+verify_jwt = false
+
+[functions.compressVideoFile]
+verify_jwt = false
+```
+
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by Akash187 ---
+Let me know if you need any other information.
+
+--- Comment 2 by encima ---
+Hey there,
+
+thanks for opening this; the local development experience is something we are working to improve and we do hear your feedback. Many teams are involved in this and we hope some of the already implemented improvements are noticeable.
+
+For this, I see that you have analytics enabled and that should be fine. Do you see all of your containers as `healthy` when running `docker ps`?
+
+
+--- Comment 3 by Akash187 ---
+Hi @encima,
+I can see errors in `supabase_analytics` container log. Video attached.
+Please suggest some way to fix it.
+
+
+https://github.com/supabase/supabase/assets/21134455/6f283768-a74b-40bf-b75c-9f2b489c286a
+
+
+
+
+
+--- Comment 4 by encima ---
+The image you are using for the Studio is likely not up to date as it is using `body` in the query when it should not be. See #26309. 
+
+If you update your Studio image (and others) then this should be resolved
+
+--- Comment 5 by Akash187 ---
+@encima my current studio version is `20240506-2976cd6`. I even delete all images and re-run `supabase start`
+
+Image added. 
+Can you recommend any command to update to the latest studio version?
+
+<img width="803" alt="Screenshot 2024-05-27 at 6 41 14 PM" src="https://github.com/supabase/supabase/assets/21134455/91a646df-4760-408d-b8e5-0bda8414e855">
+
+

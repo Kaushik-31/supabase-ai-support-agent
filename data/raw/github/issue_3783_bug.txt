@@ -1,0 +1,131 @@
+Issue #3783: `supabase.auth.api.getUserByCookie()` doesn't work in Next.JS server-side environment
+URL: https://github.com/supabase/supabase/issues/3783
+Labels: bug
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+`supabase.auth.api.getUserByCookie()` doesn't work in Next.JS server-side environment (`_middleware.ts`)
+
+## To Reproduce
+
+Steps to reproduce the behavior, please provide code snippets or a repository:
+
+1. Create a supabase project
+2. Create a Next.JS project
+3. Create
+
+Add following code to `_middleware.ts` 
+
+```typescript
+export async function middleware(req: NextRequest, ev: NextFetchEvent) {
+    let supabase = createClient(...);
+    let user = await supabase.auth.api.getUserByCookie(req);
+    console.log('Auth ', user)
+}
+```
+
+4. See logs
+
+
+```
+Auth  {
+  user: null,
+  data: null,
+  error: ReferenceError: XMLHttpRequest is not defined
+      at eval (webpack-internal:///./node_modules/cross-fetch/dist/browser-ponyfill.js?d2fb:462:17)
+      at new Promise (<anonymous>)
+      at fetch (webpack-internal:///./node_modules/cross-fetch/dist/browser-ponyfill.js?d2fb:455:12)
+      at eval (webpack-internal:///./node_modules/@supabase/gotrue-js/dist/module/lib/fetch.js?85f4:44:63)
+      at new Promise (<anonymous>)
+      at eval (webpack-internal:///./node_modules/@supabase/gotrue-js/dist/module/lib/fetch.js?85f4:43:16)
+      at Generator.next (<anonymous>)
+      at eval (webpack-internal:///./node_modules/@supabase/gotrue-js/dist/module/lib/fetch.js?85f4:16:71)
+      at new Promise (<anonymous>)
+      at __awaiter (webpack-internal:///./node_modules/@supabase/gotrue-js/dist/module/lib/fetch.js?85f4:12:12)
+}
+```
+
+## Expected behavior
+
+getUserByCookie() should either work (use `fetch()` internally instead of `XMLHttpRequest`), OR message should be more clear (check the presence of  `XMLHttpRequest` in `getUserByCookie()` and throw `Sorry, you shouldn't call this method in server side environment`
+
+## System information
+
+Next version is `12.0.1`
+
+## Additional context
+
+Add any other context about the problem here.
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by vklimontovich ---
+FYI, this workaroung does the job:
+
+```typescript
+    let supabase = createClient(supabaseUrl, supabaseKey);
+    let token = req.cookies['sb:token'];
+    if (!token) {
+        return 
+    }
+    let authRequestResult = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'APIKey': supabaseKey
+        }
+    });
+
+```
+
+--- Comment 2 by kiwicopple ---
+Hmm, odd since we're using cross-fetch: https://github.com/supabase/gotrue-js/blob/c213d2f02895248fc8d601a599116531be16071d/src/lib/fetch.ts#L1
+
+I think the middleware is hosted on Cloudflare workers, so the other workaround is here: https://github.com/supabase/supabase/tree/master/examples/with-cloudflare-workers
+
+
+--- Comment 3 by vklimontovich ---
+I haven't deployed the app yet, so I believe that Cloudflare has nothing do to with it. It's reproducible with local `next dev`. I'll try to make an isolated example and maybe suggest a patch
+
+--- Comment 4 by vklimontovich ---
+Here's an isolated example: https://github.com/vklimontovich/supabase-nextjs-middleware
+
+--- Comment 5 by saltcod ---
+Not sure if the same issue or if I'm doing something wrong but:
+
+I'm trying to use `supabase.auth.api.getUserByCookie()` in `getServerSideProps` and the user is always null.
+
+```
+export async function getServerSideProps({ req }) {
+	const { user } = await supabase.auth.api.getUserByCookie(req);
+
+	console.log({ user }); // always null
+
+	if (!user) {
+		return {
+			props: {},
+		};
+	}
+
+	return { props: { user } };
+}
+```
+
+
+BUT! if I check client-side, I do have a user:
+
+```
+useEffect(() => { 
+	checkUser();
+}, []);
+
+
+async function checkUser() {
+	const user = await supabase.auth.user();
+	console.log(user); // got a user here
+}```

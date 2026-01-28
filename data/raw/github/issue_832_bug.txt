@@ -1,0 +1,70 @@
+Issue #832: redirectTo not respected when resetting password
+URL: https://github.com/supabase/supabase/issues/832
+Labels: bug
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+When sending a password reset email, the `redirectTo` option is ignored. Instead of a user being redirected to a specific place on the site (e.g., the password reset page), users are always redirected to the Site Url as specified in the Authentication Settings on the dashboard.
+
+## To Reproduce
+
+1. In the Supabase dashboard, go to Authentication > Settings, Make sure the site url is `https://example.com`
+2. Send a password reset email. Make sure to specify the `redirectTo` parameter.
+
+```js
+supabase.auth.api.resetPasswordForEmail('hello@example.com', {
+    redirectTo: `https://example.com/account/set-password`,
+})
+```
+
+2. In your email, click on the password reset link
+3. Error: you are redirected to `https://example.com`, not `https://example.com/account/set-password`
+
+I've gotten the same results regardless of whether the `redirectTo` is the same domain as the Site Url in the Authentication Settings on the dashboard.
+
+## Expected behavior
+
+After clicking the password reset link, users are redirected to the url in the `redirectUrl`.
+
+In this case, users are redirected to `https://example.com/account/set-password`
+
+## Screenshots
+
+If applicable, add screenshots to help explain your problem.
+
+## System information
+
+- OS: macOS 11.2
+- Browser: Brave 1.21.73 on Chromium: 89.0.4389.72
+- Version of supabase-js: 1.5.0
+- Version of Node.js: 12.17.0
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by Nick-Mazuk ---
+After a week of using other Supabase Auth functions, it seems like the `redirectTo` parameter isn't working on any functions, including `signUp` and `signIn`.
+
+--- Comment 2 by PabloSzx ---
+> After a week of using other Supabase Auth functions, it seems like the `redirectTo` parameter isn't working on any functions, including `signUp` and `signIn`.
+
+I can confirm it, this bug should be priority, since it basically kills the auth functionality, at first I though it was an issue with the "SITE URL" Config, since it says:
+
+```
+The base URL of your website. Used as an allow-list for redirects and for constructing URLs used in emails.
+```
+
+But trying different combinations of "URL1,URL2" "URL1;URL2" "URL1 URL" and nothing works for a "allow-list", since it seems to only be a single url, which doesn't make any sense, and it always overwrites the "redirectTo" parameter
+
+--- Comment 3 by kiwicopple ---
+Hey everyone, just an fyi we're trying to work with the Netlify team to make sure that we can get this into GoTrue. It's a fundamental shift in the server's set up so we are a bit slower. We will definitely solve this!
+
+--- Comment 4 by kiwicopple ---
+I'm going to close this one now in favor of the gotrue-js issue: https://github.com/supabase/gotrue-js/issues/65
+
+--- Comment 5 by FloCalvo ---
+I am having this issue, redirectTo is not working for me on password recovery, although it works fine for sign up. Is this supposed to be working? 

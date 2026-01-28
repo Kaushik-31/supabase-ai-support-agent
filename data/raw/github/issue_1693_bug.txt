@@ -1,0 +1,68 @@
+Issue #1693: React Native .from().select() promise never resolves in release (Expo)
+URL: https://github.com/supabase/supabase/issues/1693
+Labels: bug
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+## Describe the bug
+
+When testing the from().select() function in debug mode in an ejected Expo app the data is returned successfully, however, once you switch to the release variant, nothing is returned. The app does not crash meaning no major errors are being thrown. 
+
+## To Reproduce
+
+```
+const { data, error } = await supabase
+      .from('table')
+      .select('*')
+      .eq('column', variableToMatch);
+```
+
+## Expected behavior
+
+The expected behaviour is that the call will return the requested data from the Supabase table or an error suggesting that something went wrong.
+
+## System information
+
+- OS: macOS
+- Version of supabase-js: v1.11.12
+- Version of Node.js: v14.16.0
+- Version of Async Storage: v1.15.4
+- Version of Expo: v41.0.0
+- Version of React Native: v0.63.4
+
+## Additional context
+
+I have been getting these logs: `Error getting session from URL.`, `nw_socket_handle_socket_event [C5:1] Socket SO_ERROR [61: Connection refused]`, `nw_connection_get_connected_socket [C5] Client called nw_connection_get_connected_socket on unconnected nw_connection`, `TCP Conn 0x2806304d0 Failed : error 0:61 [61]`, `SocketRocket: In debug mode. Allowing connection to any root cert` but I am uncertain whether the last four pertain to Supabase. Happens on both Android and iOS.
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by He1nr1chK ---
+Upon further investigation I have been able to narrow it down to the promise never resolving. @kiwicopple @awalias, what are your thoughts on this?
+
+--- Comment 2 by kiwicopple ---
+Great debugging @He1nr1chK  - I think it's related to `cross-fetch`:
+
+https://github.com/supabase/postgrest-js/blob/e14461cb752e603c6dca9ca114bc882a3b137636/package.json#L33
+
+Perhaps this isn't supported in ReactNative environments? 
+
+https://stackoverflow.com/questions/52917733/cross-fetch-doesnt-work-with-react-native
+
+Although I thought this was patched already: https://github.com/lquixada/cross-fetch/issues/26
+
+We have to Ponyfill [CloudflareWorkers](https://github.com/supabase/supabase/tree/master/examples/with-cloudflare-workers), and perhaps we need to do something similar with RN?
+
+
+
+--- Comment 3 by He1nr1chK ---
+Hi @kiwicopple, thanks for getting back to me. Do you think it might be linked somehow to the fix of adding `import 'react-native-url-polyfill/auto';` to `index.js`? Maybe the two might not work correctly together or maybe polyfill as a whole does not work with RN and the workaround of adding the import merely suppresses the symptom without actually solving the problem?
+
+--- Comment 4 by Hannes1 ---
+This is weird behaviour because fetch is working for gotrue-js in production (creating users and signin) but not for postgres-js as the ` await supabase` never gets resolved. Cross-fetch uses: [fetch](https://github.com/github/fetch)  package for the react native environment, maybe some fetch feature not supported? But in development getting or updating  works fine.
+
+
+--- Comment 5 by He1nr1chK ---
+@kiwicopple, I noticed that Gotrue Client uses `cross-fetch` as well and it seems to work in production which is odd. Thus I doubt that `cross-fetch` by itself is the culprit. What do you do differently when it comes to network requests between the two?

@@ -1,0 +1,36 @@
+Issue #22537: Security of webhook edge function authentication somewhat dubious
+URL: https://github.com/supabase/supabase/issues/22537
+Labels: question
+Status: closed
+================================================================================
+
+PROBLEM:
+Choosing service role authentication for an edge function webhook results in:
+```
+create trigger my_webhook
+after insert on my_table for each row
+execute function supabase_functions.http_request (
+  'https://xxx.supabase.co/functions/v1/my-edge-func',
+  'POST',
+  '{"Content-type":"application/json","Authorization":"Bearer eyJhbxxxxxxxxxxx"}',
+  '{}',
+  '5000'
+);
+```
+
+with the service role API key directly in the table definition. Although (As I understand it) postgrest can't look at the table definition, this still feels wrong. Wouldn't it better if all the admin roles could access a private function that returns the service role key? Really anything other than putting it in the def of public schemas.
+
+I can't point to an obvious vulnerability this produces except that I'm always copy/pasting my table defs around, and could forget to remove the key. Still, there must be other potential vulns I'm not thinking of. Maybe getting the key from elsewhere would make temporarily enabling `explain` safer too?
+
+https://github.com/orgs/supabase/discussions/14115
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by encima ---
+Hey @bitnom,
+
+Thanks for opening (and for the feedback!). These are good concerns to raise.
+
+To clarify, the service role key for this webhook call is stored in the `supabase_functions` schema that is not visible to Postgrest and is a protected, managed schema from Supabase. 
+
+Hopefully that puts your mind at ease. I will close this as answered but let us know if you have further questions and we can convert this to a discussion!

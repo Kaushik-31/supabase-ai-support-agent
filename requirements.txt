@@ -1,0 +1,11 @@
+boto3==1.35.82
+chromadb==0.5.23
+python-dotenv==1.0.1
+beautifulsoup4==4.12.3
+requests==2.32.3
+lxml==5.3.0
+pandas==2.2.3
+psycopg2-binary==2.9.10
+flask==3.1.0
+flask-cors==5.0.0
+uuid==1.30

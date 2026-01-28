@@ -1,0 +1,83 @@
+Issue #4758: Logging in with Facebook gives 502 error
+URL: https://github.com/supabase/supabase/issues/4758
+Labels: bug, wontfix, auth
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+Facebook login gives 502 error when being set up according to the documentation.
+
+## Describe the bug
+
+Following the instructions on:
+https://supabase.com/docs/guides/auth/auth-facebook
+
+When running the following code:
+
+```js
+const { user, session, error } = await supabase.auth.signIn({
+  provider: 'facebook'
+})
+```
+
+I get sent to `https://[my-project].supabase.co/auth/v1/authorize?provider=facebook` that gives me 502, bad gateway from Cloudflare.
+
+## To Reproduce
+
+Steps to reproduce the behavior, please provide code snippets or a repository:
+
+1. Create a new Facebook app
+2. Enter your Facebook apps ID and Secret to Supabase.
+3. Add you supabase, url + `/auth/v1/callback/` as **Valid OAuth Redirect URIs** in your Facebook app.
+4. Run the following code
+
+```js
+const { user, session, error } = await supabase.auth.signIn({
+  provider: 'facebook'
+})
+```
+
+## Expected behavior
+
+I would have to accept connecting with Facebook.
+
+## Screenshots
+
+<img width="901" alt="Screenshot 2022-01-01 at 21 46 08" src="https://user-images.githubusercontent.com/1999142/147859918-7585dc83-92f6-4cb6-9543-aafda3dfaf21.png">
+
+
+## System information
+
+- OS: MacOS
+- Browser: All
+- Version of supabase-js: 1.29.1
+- Version of Node.js: 16.13.1
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kangmingtay ---
+Hi @fabianmossberg, was there an error message displayed in the url / response in addition to the 502 error?
+
+--- Comment 2 by fabianmossberg ---
+@kangmingtay: no, no specific error in the response or in the logs at supabase.
+
+--- Comment 3 by bokub ---
+I have the same problem with the **E-mail**, **GitHub** and **Google** providers, so I'm not sure it's linked to Facebook.
+
+I have 2 projects on Supabase, but only one of them has this issue (it used to work before).
+
+I have restarted the server multiple times and it didn't fix the issue.
+
+This is a screenshot of `https://[project-id].supabase.co/auth/v1/authorize?provider=github&redirect_to=http%3A%2F%2Flocalhost%3A3000%2Flogin`
+
+![image](https://user-images.githubusercontent.com/17952318/148048603-2e855062-5eeb-4b46-b9d9-879f27ffac66.png)
+
+And I also receive a 502 when calling `POST https://[project-id].supabase.co/auth/v1/magiclink?redirect_to=http%3A%2F%2Flocalhost%3A3000%2Flogin`
+
+--- Comment 4 by kangmingtay ---
+Hi @fabianmossberg and @bokub, could you guys please email support@supabase.io so i can look into the issue? Thanks!
+
+--- Comment 5 by bokub ---
+Done :heavy_check_mark: 

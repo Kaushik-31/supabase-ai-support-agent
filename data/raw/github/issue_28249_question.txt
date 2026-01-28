@@ -1,0 +1,22 @@
+Issue #28249: Incorrect Postgres Connection ( Need direct connection and not Cloudflare Middleware )
+URL: https://github.com/supabase/supabase/issues/28249
+Labels: question, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+Currently we cannot get a direct connection to Postgres when using the supabase.com hosted service. The connection goes through Cloudflare which bottles requests and adds rate limiting etc. 
+
+How to get access to direct DB connection?
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by j-mendez ---
+Looks like the way Supabase.com setups Postgres through Cloudflare and not s3. Do we have a place where the architecture is documented for more advanced usage?
+
+--- Comment 2 by encima ---
+@j-mendez The architecture is documented [here](https://supabase.com/docs/guides/getting-started/architecture), please let us know if anything needs clarifying.
+
+Adding the [IPv4 addon](https://supabase.com/docs/guides/platform/ipv4-address) will give you a static IPv4 address to access your instance directly. Alternatively, as you noted, the direct connection string uses a subdomain generated from your project reference, you can add a [custom domain](https://supabase.com/docs/guides/platform/custom-domains) as well if needed.

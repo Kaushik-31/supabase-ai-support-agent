@@ -1,0 +1,15 @@
+Issue #155: Add usage with UMD section
+URL: https://github.com/supabase/supabase/issues/155
+Labels: question
+Status: closed
+================================================================================
+
+PROBLEM:
+We have now added UMD support to use supabase in a website:
+
+unpkg.com/@supabase/supabase-js/umd/supabase.js
+
+We should add a section for usage, just like the TypeScript section here:
+
+![img](https://user-images.githubusercontent.com/5748289/90049864-07e2c380-dd08-11ea-93ab-870f7822781a.png)
+

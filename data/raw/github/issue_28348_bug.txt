@@ -1,0 +1,84 @@
+Issue #28348: Analytics docker image unhealthy when self-hosting due to migration issue (`sources` not found)
+URL: https://github.com/supabase/supabase/issues/28348
+Labels: bug, self-hosted, needs-analysis, awaiting-details, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+<!-- 
+
+⚠️ We receive a lot of bug reports which have already been solved or discussed. If you are looking for help, please try these first:
+
+- Docs: https://docs.supabase.com
+- Discussions: https://github.com/supabase/supabase/discussions
+- Discord: https://discord.supabase.com
+
+Before opening a bug report, please verify the following: 
+
+-->
+
+- [X] I confirm this is a bug with Supabase, not with my own application. 
+- [X] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+
+Well I am trying to deploy the supabase localhost to the Red Hat Linux server and I am not able to start the container it shows that analytics can't start
+
+## To Reproduce
+
+Steps to reproduce the behavior, please provide code snippets or a repository:
+
+1. Clone the repo 
+2. Do export DOCKER_DEFAULT_PLATFORM=linux/amd64
+3. Build the studio
+4. You will get the error
+
+## Expected behavior
+
+It should start normally
+
+## Screenshots
+
+<img width="653" alt="image" src="https://github.com/user-attachments/assets/e0cddf53-b081-4da4-b9a4-33304ab982d0">
+<img width="301" alt="image" src="https://github.com/user-attachments/assets/f9b05cb1-ee1a-4a27-8f5b-f831ecbdc58a">
+
+
+## System information
+
+- OS: macOS
+- Browser (if applies) [e.g. chrome, safari]
+- Version of supabase-js: [e.g. 6.0.2]
+- Version of Node.js: [e.g. 10.10.0]
+
+## Additional context
+
+Well I have macOS and I am building the image for the Red Hat Linux server and I am failing to do so
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by raman04-byte ---
+@Akash187 Can you help me in this issue please as we are stuck in this problem since a week now. The analytics image is just unable to start and we are getting errors while starting the images
+
+--- Comment 2 by raman04-byte ---
+@encima Any updates please
+
+--- Comment 3 by Akash187 ---
+@raman04-byte for me it is working fine on my Macbook CLI v1.187.10.
+
+--- Comment 4 by raman04-byte ---
+> @raman04-byte for me it is working fine on my Macbook CLI v1.187.10.
+
+I am not using CLI 
+
+Create the image for the amd/Linux and run it. 
+
+You can use this
+DOCKER_DEFAULT_PLATFORM=linux/amd64
+
+
+
+--- Comment 5 by Akash187 ---
+Are you using self-hosted version?

@@ -1,0 +1,101 @@
+Issue #180: Multiple policies
+URL: https://github.com/supabase/supabase/issues/180
+Labels: question
+Status: closed
+================================================================================
+
+PROBLEM:
+# Question
+
+Is it possible to have multiple separate policies on a single table?
+
+## Additional context
+
+- I tried to add separate policies for SELECT and for INSERT.
+- The "Apply to SELECT' policy was added first and successfully saved.
+- Adding the "Apply to INSERT" policy did not save.
+- Both policies had policy rule of `(role() = 'authenticated'::text)`.
+
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by richcorbs ---
+A few more data points that might help narrow it down.
+
+- Adding an "Apply to DELETE" policy worked.
+- Adding an "Apply to UPDATE" policy worked.
+- Both policies were added with a policy rule of `auth.role() = 'authenticated'`
+- Adding an "Apply to INSERT" policy still does not work.
+
+--- Comment 2 by richcorbs ---
+Also, after clicking "Save" an empty red policy box is displayed in the Policies portion of the UI for a few seconds before disappearing. 
+
+--- Comment 3 by kiwicopple ---
+Hey @richcorbs thanks for the detailed issue. We actually have a long-running internal task to overhaul the policies interface. We plan to make it much simpler. 
+
+For the `select` clause, are you adding the `(role() = 'authenticated'::text)` to `POLICY` or to `CHECK`? Can you try adding it to `CHECK` and let me know if that works.  
+
+This is caused by a hidden Postgres error. If you inspect the response in the network tab you might see this:
+
+```
+[{"error":"error: only WITH CHECK expression allowed for INSERT"}]
+```
+
+
+This is the way Postgres policies work 
+
+- `CHECK` runs on "new data" 
+- `POLICY` runs on "existing data". 
+
+Since inserts don't have "existing data", it won't actually have an effect.
+
+
+This probably seems confusing so don't worry - in the next UI overhaul we will remove the option of `POLICY` and `CHECK`, and we will handle it in the background.
+
+Let me know if the problem is still happening after switching to `CHECK`! If not, I'll leave you to close this
+
+--- Comment 4 by richcorbs ---
+Adding the rule to the "Check" instead of to the "Policy" worked just like you suggested it would. Thanks for the response!
+
+Do you know a good resource for learning the ins and outs of Postgres? I had no idea that policies and checks worked that way. I looked at Udemy courses the other day and nothing jumped out to me.
+
+An updated policies interface sounds great.
+
+Also, I want to figure out how to use data from other tables in my policy/check rules. Like:
+
+- `allow this if the current user's organization id matches the organization id of the record being operated on`
+- `allow this if the current user's id matches the user id of the record being operated on`
+- `allow this if the current user's role is 'admin'`
+
+Thanks again for the response.
+
+--- Comment 5 by kiwicopple ---
+> Do you know a good resource for learning the ins and outs of Postgres?
+
+Once you get your head around the format of the Postgres docs, it's an amazing resource: https://www.postgresql.org/docs/current/sql-createpolicy.html
+
+Supabase will do a lot of work here to make Postgres more approachable. It's not too difficult to understand, but the concepts can be a bit foreign (Row Level Security in particular)
+
+> how to use data from other tables in my policy/check rules
+
+No probs! This is where policies really shine. Just imagine that a policy attaches a `where` clause to every statement. For example:
+
+"allow this if the current user's organization id matches the organization id of the record being operated on"
+
+You can do something like this:
+
+```sql
+create policy "Read messages if user is a member of the org" 
+  on public.messages 
+  for select using ( 
+    auth.uid() in (
+        select user_id from members where members.org_id = messages.org_id
+    )
+  );
+```
+
+(assuming you schema is something like this)
+
+![image](https://user-images.githubusercontent.com/10214025/92318173-08d2f080-f03b-11ea-87e7-fa9bd5af674f.png)
+

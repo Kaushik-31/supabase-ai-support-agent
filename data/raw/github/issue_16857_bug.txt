@@ -1,0 +1,101 @@
+Issue #16857: Trouble with File Upload in Self-Hosted Supabase Using Docker
+URL: https://github.com/supabase/supabase/issues/16857
+Labels: bug, self-hosted, storage
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+<!-- 
+
+⚠️ We receive a lot of bug reports which have already been solved or discussed. If you are looking for help, please try these first:
+
+- Docs: https://docs.supabase.com
+- Discussions: https://github.com/supabase/supabase/discussions
+- Discord: https://discord.supabase.com
+
+Before opening a bug report, please verify the following: 
+
+-->
+
+- [x] I confirm this is a bug with Supabase, not with my own application. 
+- [x] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+I'm currently facing a perplexing problem while attempting to manually upload files to the Supabase bucket on my self-hosted instance using Docker. The issue arises when I initiate the upload process – the progress gets stuck at 0% and the upload never seems to commence. I've conducted this experiment on multiple computers and have tried various file types, yet regrettably, none of these attempts have proved successful.
+
+## To Reproduce
+1. Set up self-hosted Supabase instance using Docker.
+2. Open the dashboard and head to bucket
+3. Upload one/multiple files
+
+## Expected behavior
+The manual file upload process should initiate normally, progressing from 0% to completion, allowing the files to be uploaded successfully to the Supabase bucket.
+
+## Screenshots
+![anydesk00000](https://github.com/supabase/supabase/assets/142131264/f857ea76-31bb-4b4a-af90-a239613cd267)
+
+## System information
+
+- OS: Rocky Linux 9
+- Browser: Microsoft Edge, Chrome
+- Version of supabase-js: latest
+- Version of Node.js: 20.5.1
+
+## Additional context
+- I have ensured that I haven't made any erroneous configurations in my settings, but I'm open to the possibility that I might have missed something crucial.
+- Interestingly, upon executing the command "docker ps -a," I can confirm that the storage function is indeed running, which adds a layer of complexity to diagnosing the issue.
+```shell
+CONTAINER ID   IMAGE                              COMMAND                   CREATED       STATUS                 PORTS                                                                                                      NAMES
+99cba4c80bfd   supabase/studio:20230803-15c6762   "docker-entrypoint.s…"    5 hours ago   Up 5 hours (healthy)   3000/tcp                                                                                                   supabase-studio
+0bf0b15ad154   kong:2.8.1                         "bash -c 'eval \"echo…"   5 hours ago   Up 5 hours (healthy)   8001/tcp, 8444/tcp, 0.0.0.0:8443->8443/tcp, :::8443->8443/tcp, 0.0.0.0:9090->8000/tcp, :::9090->8000/tcp   supabase-kong
+3f503c1ccc79   supabase/gotrue:v2.82.4            "gotrue"                  5 hours ago   Up 5 hours (healthy)                                                                                                              supabase-auth
+e13f590b99db   supabase/storage-api:v0.40.4       "docker-entrypoint.s…"    6 hours ago   Up 5 hours (healthy)   5000/tcp                                                                                                   supabase-storage
+6fa902be473d   supabase/realtime:v2.10.1          "/usr/bin/tini -s -g…"    6 hours ago   Up 5 hours (healthy)                                                                                                              realtime-dev.supabase-realtime
+292f88628506   supabase/postgres-meta:v0.68.0     "docker-entrypoint.s…"    6 hours ago   Up 5 hours (healthy)   8080/tcp                                                                                                   supabase-meta
+62c838b1be5b   supabase/edge-runtime:v1.8.1       "edge-runtime start …"    6 hours ago   Up 5 hours                                                                                                                        supabase-edge-functions
+53348c9dea10   postgrest/postgrest:v11.1.0        "/bin/postgrest"          6 hours ago   Up 5 hours             3000/tcp                                                                                                   supabase-rest
+451d2fc42946   supabase/logflare:1.4.0            "sh -c '`cat <<EOF >…"    6 hours ago   Up 5 hours (healthy)                                                                                                              supabase-analytics
+2a55f9cfb9ab   supabase/postgres:15.1.0.103       "docker-entrypoint.s…"    6 hours ago   Up 5 hours (healthy)   127.0.0.1:5432->5432/tcp                                                                                   supabase-db
+8d4e8023a5a8   darthsim/imgproxy:v3.8.0           "imgproxy"                6 hours ago   Up 5 hours (healthy)   8080/tcp                                                                                                   supabase-imgproxy
+2e3845edc3d9   timberio/vector:0.28.1-alpine      "/usr/local/bin/vect…"    6 hours ago   Up 5 hours (healthy)   0.0.0.0:9000-9001->9000-9001/tcp, :::9000-9001->9000-9001/tcp                                              supabase-vector
+```
+- It's worth mentioning that I've also port forwarded the dashboard port to my domain as part of the setup.
+
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by xyberninja ---
+_Bumping_
+
+--- Comment 2 by aabulmagd ---
+I have the same behaviour, running supabase on docker inside a nested unprevilages LXC container on proxmox.
+
+--- Comment 3 by ivasilov ---
+Should be fixed by https://github.com/supabase/supabase/pull/17587. 
+
+Edit the `docker-compose.yml` and update to the latest docker image which should be out next Tuesday, you can check [here](https://hub.docker.com/r/supabase/studio/tags).
+
+Please reopen and ping me if the issue still persists.
+
+--- Comment 4 by aabulmagd ---
+@ivasilov Problem Still exists with studio:v0.23.09_amd64 with this error:
+Failed to load resource: the server responded with a status of 404 (Not Found)
+:8000/api/integrations/default-org-slug?expand=true:1     Failed to load resource: the server responded with a status of 404 (Not Found)
+:8000/api/integrations/default-org-slug?expand=true:1     Failed to load resource: the server responded with a status of 404 (Not Found)
+localhost:8000/storage/v1/object/assets/IMG_6990%20Large.jpeg:1     Failed to load resource: net::ERR_CONNECTION_REFUSED
+
+--- Comment 5 by dfang ---
+> Should be fixed by #17587.
+> 
+> Edit the `docker-compose.yml` and update to the latest docker image which should be out next Tuesday, you can check [here](https://hub.docker.com/r/supabase/studio/tags).
+> 
+> Please reopen and ping me if the issue still persists.
+
+@ivasilov, the latest image tag is v0.23.09
+
+
+same issue as @aabulmagd.
+
+any progress ?

@@ -1,0 +1,211 @@
+Issue #20370: `npm install` fails when installing repo dependencies for development
+URL: https://github.com/supabase/supabase/issues/20370
+Labels: bug
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+- [x] I confirm this is a bug with Supabase, not with my own application. 
+- [x] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+On running `npm install` after cloning the repository, it fails with the following log (some parts trimmed) :
+```
+glitch@instance-3:~/supabase$ npm i
+npm ERR! code 1
+npm ERR! path /home/glitch/supabase/node_modules/@gregnr/libpg-query
+npm ERR! command failed
+npm ERR! command sh -c node-pre-gyp install --fallback-to-build
+npm ERR! make: Entering directory '/home/glitch/supabase/node_modules/@gregnr/libpg-query/build'
+npm ERR!   CC(target) Release/obj.target/nothing/node_modules/node-addon-api/nothing.o
+npm ERR! rm -f Release/obj.target/node_modules/node-addon-api/nothing.a Release/obj.target/node_modules/node-addon-api/nothing.a.ar-file-list; mkdir -p `dirname Release/obj.target/node_modules/node-addon-api/nothing.a`
+npm ERR! ar crs Release/obj.target/node_modules/node-addon-api/nothing.a @Release/obj.target/node_modules/node-addon-api/nothing.a.ar-file-list
+npm ERR!   COPY Release/nothing.a
+npm ERR!   ACTION binding_gyp_queryparser_target_prebuild_dependencies libpg_query/include/pg_query.h
+npm ERR! make[1]: Entering directory '/tmp/tmp.Ztle2IBnbL/libpg_query'
+npm ERR! compiling src/pg_query.c
+<--- trimmed --->
+npm ERR! make[1]: Leaving directory '/tmp/tmp.Ztle2IBnbL/libpg_query'
+npm ERR! ERROR: 'make' command failed
+npm ERR! make: Leaving directory '/home/glitch/supabase/node_modules/@gregnr/libpg-query/build'
+npm ERR! Failed to execute '/home/glitch/.nvm/versions/node/v18.19.0/bin/node /home/glitch/.nvm/versions/node/v18.19.0/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js build --fallback-to-build --module=/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/Release/queryparser.node --module_name=queryparser --module_path=/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/Release --napi_version=9 --node_abi_napi=napi --napi_build_version=0 --node_napi_label=node-v108' (1)
+npm ERR! node-pre-gyp info it worked if it ends with ok
+npm ERR! node-pre-gyp info using node-pre-gyp@1.0.11
+npm ERR! node-pre-gyp info using node@18.19.0 | linux | x64
+npm ERR! node-pre-gyp info check checked for "/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/Release/queryparser.node" (not found)
+npm ERR! node-pre-gyp http GET https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz
+npm ERR! node-pre-gyp ERR! install response status 404 Not Found on https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz
+npm ERR! node-pre-gyp WARN Pre-built binaries not installable for @gregnr/libpg-query@13.4.0-dev.12 and node@18.19.0 (node-v108 ABI, glibc) (falling back to source compile with node-gyp)
+npm ERR! node-pre-gyp WARN Hit error response status 404 Not Found on https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz
+npm ERR! gyp info it worked if it ends with ok
+npm ERR! gyp info using node-gyp@10.0.1
+npm ERR! gyp info using node@18.19.0 | linux | x64
+npm ERR! gyp info ok
+npm ERR! gyp info it worked if it ends with ok
+npm ERR! gyp info using node-gyp@10.0.1
+npm ERR! gyp info using node@18.19.0 | linux | x64
+npm ERR! gyp info find Python using Python version 3.11.6 found at "/usr/bin/python3"
+npm ERR! gyp http GET https://nodejs.org/download/release/v18.19.0/node-v18.19.0-headers.tar.gz
+npm ERR! gyp http 200 https://nodejs.org/download/release/v18.19.0/node-v18.19.0-headers.tar.gz
+npm ERR! gyp http GET https://nodejs.org/download/release/v18.19.0/SHASUMS256.txt
+npm ERR! gyp http 200 https://nodejs.org/download/release/v18.19.0/SHASUMS256.txt
+npm ERR! gyp info spawn /usr/bin/python3
+npm ERR! gyp info spawn args [
+npm ERR! gyp info spawn args '/home/glitch/.nvm/versions/node/v18.19.0/lib/node_modules/npm/node_modules/node-gyp/gyp/gyp_main.py',
+npm ERR! gyp info spawn args 'binding.gyp',
+npm ERR! gyp info spawn args '-f',
+npm ERR! gyp info spawn args 'make',
+npm ERR! gyp info spawn args '-I',
+npm ERR! gyp info spawn args '/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/config.gypi',
+npm ERR! gyp info spawn args '-I',
+npm ERR! gyp info spawn args '/home/glitch/.nvm/versions/node/v18.19.0/lib/node_modules/npm/node_modules/node-gyp/addon.gypi',
+npm ERR! gyp info spawn args '-I',
+npm ERR! gyp info spawn args '/home/glitch/.cache/node-gyp/18.19.0/include/node/common.gypi',
+npm ERR! gyp info spawn args '-Dlibrary=shared_library',
+npm ERR! gyp info spawn args '-Dvisibility=default',
+npm ERR! gyp info spawn args '-Dnode_root_dir=/home/glitch/.cache/node-gyp/18.19.0',
+npm ERR! gyp info spawn args '-Dnode_gyp_dir=/home/glitch/.nvm/versions/node/v18.19.0/lib/node_modules/npm/node_modules/node-gyp',
+npm ERR! gyp info spawn args '-Dnode_lib_file=/home/glitch/.cache/node-gyp/18.19.0/<(target_arch)/node.lib',
+npm ERR! gyp info spawn args '-Dmodule_root_dir=/home/glitch/supabase/node_modules/@gregnr/libpg-query',
+npm ERR! gyp info spawn args '-Dnode_engine=v8',
+npm ERR! gyp info spawn args '--depth=.',
+npm ERR! gyp info spawn args '--no-parallel',
+npm ERR! gyp info spawn args '--generator-output',
+npm ERR! gyp info spawn args 'build',
+npm ERR! gyp info spawn args '-Goutput_dir=.'
+npm ERR! gyp info spawn args ]
+npm ERR! gyp info ok
+npm ERR! gyp info it worked if it ends with ok
+npm ERR! gyp info using node-gyp@10.0.1
+npm ERR! gyp info using node@18.19.0 | linux | x64
+npm ERR! gyp info spawn make
+npm ERR! gyp info spawn args [ 'BUILDTYPE=Release', '-C', 'build' ]
+npm ERR! Cloning into 'libpg_query'...
+npm ERR! Note: switching to '1097b2c33e54a37c0d2c0f2d498c7d1cf967eae9'.
+npm ERR!
+npm ERR! You are in 'detached HEAD' state. You can look around, make experimental
+npm ERR! changes and commit them, and you can discard any commits you make in this
+npm ERR! state without impacting any branches by switching back to a branch.
+npm ERR!
+npm ERR! If you want to create a new branch to retain commits you create, you may
+npm ERR! do so (now or later) by using -c with the switch command. Example:
+npm ERR!
+npm ERR!   git switch -c <new-branch-name>
+npm ERR!
+npm ERR! Or undo this operation with:
+npm ERR!
+npm ERR!   git switch -
+npm ERR!
+npm ERR! Turn off this advice by setting config variable advice.detachedHead to false
+npm ERR!
+npm ERR! HEAD is now at 1097b2c Release 13-2.2.0
+npm ERR! src/postgres/src_port_snprintf.c:374:1: error: conflicting types for ‘strchrnul’; have ‘const char *(const char *, int)’
+npm ERR!   374 | strchrnul(const char *s, int c)
+npm ERR!       | ^~~~~~~~~
+npm ERR! In file included from ./src/postgres/include/c.h:61,
+npm ERR!                  from src/postgres/src_port_snprintf.c:62:
+npm ERR! /usr/include/string.h:286:14: note: previous declaration of ‘strchrnul’ with type ‘char *(const char *, int)’
+npm ERR!   286 | extern char *strchrnul (const char *__s, int __c)
+npm ERR!       |              ^~~~~~~~~
+npm ERR! make[1]: *** [Makefile:171: src/postgres/src_port_snprintf.o] Error 1
+npm ERR! make: *** [queryparser.target.mk:13: libpg_query/include/pg_query.h] Error 1
+npm ERR! gyp ERR! build error
+npm ERR! gyp ERR! stack Error: `make` failed with exit code: 2
+npm ERR! gyp ERR! stack at ChildProcess.<anonymous> (/home/glitch/.nvm/versions/node/v18.19.0/lib/node_modules/npm/node_modules/node-gyp/lib/build.js:209:23)
+npm ERR! gyp ERR! System Linux 6.5.0-1008-gcp
+npm ERR! gyp ERR! command "/home/glitch/.nvm/versions/node/v18.19.0/bin/node" "/home/glitch/.nvm/versions/node/v18.19.0/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js" "build" "--fallback-to-build" "--module=/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/Release/queryparser.node" "--module_name=queryparser" "--module_path=/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/Release" "--napi_version=9" "--node_abi_napi=napi" "--napi_build_version=0" "--node_napi_label=node-v108"
+npm ERR! gyp ERR! cwd /home/glitch/supabase/node_modules/@gregnr/libpg-query
+npm ERR! gyp ERR! node -v v18.19.0
+npm ERR! gyp ERR! node-gyp -v v10.0.1
+npm ERR! gyp ERR! not ok
+npm ERR! node-pre-gyp ERR! build error
+npm ERR! node-pre-gyp ERR! stack Error: Failed to execute '/home/glitch/.nvm/versions/node/v18.19.0/bin/node /home/glitch/.nvm/versions/node/v18.19.0/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js build --fallback-to-build --module=/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/Release/queryparser.node --module_name=queryparser --module_path=/home/glitch/supabase/node_modules/@gregnr/libpg-query/build/Release --napi_version=9 --node_abi_napi=napi --napi_build_version=0 --node_napi_label=node-v108' (1)
+npm ERR! node-pre-gyp ERR! stack     at ChildProcess.<anonymous> (/home/glitch/supabase/node_modules/@mapbox/node-pre-gyp/lib/util/compile.js:89:23)
+npm ERR! node-pre-gyp ERR! stack     at ChildProcess.emit (node:events:517:28)
+npm ERR! node-pre-gyp ERR! stack     at maybeClose (node:internal/child_process:1098:16)
+npm ERR! node-pre-gyp ERR! stack     at ChildProcess._handle.onexit (node:internal/child_process:303:5)
+npm ERR! node-pre-gyp ERR! System Linux 6.5.0-1008-gcp
+npm ERR! node-pre-gyp ERR! command "/home/glitch/.nvm/versions/node/v18.19.0/bin/node" "/home/glitch/supabase/node_modules/.bin/node-pre-gyp" "install" "--fallback-to-build"
+npm ERR! node-pre-gyp ERR! cwd /home/glitch/supabase/node_modules/@gregnr/libpg-query
+npm ERR! node-pre-gyp ERR! node -v v18.19.0
+npm ERR! node-pre-gyp ERR! node-pre-gyp -v v1.0.11
+npm ERR! node-pre-gyp ERR! not ok
+
+npm ERR! A complete log of this run can be found in: /home/glitch/.npm/_logs/2024-01-12T05_48_50_483Z-debug-0.log
+```
+
+## To Reproduce
+
+Steps to reproduce the behavior, please provide code snippets or a repository:
+
+1. Follow the steps mentioned [here](https://github.com/supabase/supabase/blob/master/DEVELOPERS.md#local-development). Clone the repo and install dependencies
+2. It should fail.
+
+
+## System information
+
+- OS: Tried on Arch Linux (EndeavourOS) and Ubuntu 23.10 
+- Version of npm: 10.2.3 and 9.9.2
+- Version of Node.js: v21.5.0  v18.19.0
+
+## Additional context
+Seems to me that @gregnr/libpg-query package isn't building properly. I also notice that this URL: https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz is returning a 404.
+
+Do let me know if I can give more information about my systems. I've tried and tested this both on my local machine and Ubuntu box.
+
+Thanks!
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by jordienr ---
+Hey @alt-glitch I just tried a clean install following the guide and everythings working. Can you try deleting node_modules and doing a clean install with `npm ci`? Have you tried any other fixes? 
+
+Also make sure your package-lock file doesn't have any changes. LMK how it goes!
+
+--- Comment 2 by alt-glitch ---
+Hey @jordienr 
+Dropping an update.
+`npm ci` results in the same error log. On both my machines. `package-lock.json` doesn't have any changes either.
+
+I _think_ the error is that;
+1. `https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz` contains pre-built binaries, which throws a 404.
+```
+npm ERR! node-pre-gyp http GET https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz
+npm ERR! node-pre-gyp ERR! install response status 404 Not Found on https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz
+npm ERR! node-pre-gyp WARN Pre-built binaries not installable for @gregnr/libpg-query@13.4.0-dev.12 and node@18.19.0 (node-v108 ABI, glibc) (falling back to source compile with node-gyp)
+npm ERR! node-pre-gyp WARN Hit error response status 404 Not Found on https://supabase-public-artifacts-bucket.s3.amazonaws.com/libpg-query-node/queryparser-v13.4.0-dev.12-node-v108-linux-x64.tar.gz
+```
+2. On getting the 404, it tries to compile it by itself which also fails due to some reason.
+
+Let me know if I might be missing some dependencies on my system.
+
+---
+
+I found the following issue https://github.com/launchql/libpg-query-node/issues/25. I went and tried to build `libpg-query` on my system and it failed with the same error. I used both Node 18 and 20 and it failed with the same result.
+
+I will try to see what the issue is with my system, though it's peculiar that my ubuntu box behaves the same.
+
+--- Comment 3 by iharshspatel ---
+Hey @jordienr,
+Even after deleting node_modules & npm ci still facing the same issue as suggested by @alt-glitch.
+
+
+--- Comment 4 by encima ---
+hey there, the 404 may be a separate issue but the build you are trying needs the 'make' command. Which box are you running this on? Adding 'make' to the installed packages should address this, can you try that?
+
+--- Comment 5 by alt-glitch ---
+Hey @encima 
+I'm running this on both Arch and Ubuntu. `make` is installed on both of them.
+I actually tried to make `libpg-query-node` by myself as well (using [v13](https://github.com/pganalyze/libpg_query/tree/13-latest) and [v16](https://github.com/pganalyze/libpg_query/) and the v13 failed to make with the same error while I was able to make v16 successfully.
+
+Does my postgres version make a difference?
+```
+❯ postgres -V
+postgres (PostgreSQL) 16.1
+```
+
+Screenshots below:
+<img width="1271" alt="image" src="https://github.com/supabase/supabase/assets/52913345/f7dea580-921f-444a-bf6a-de5f3b927380">
+

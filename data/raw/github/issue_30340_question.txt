@@ -1,0 +1,29 @@
+Issue #30340: Building Supabase from code
+URL: https://github.com/supabase/supabase/issues/30340
+Labels: question, self-hosted, awaiting-details, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+It does not appear the documentation for Contribution is up to date for building Supabase. Has anyone performed a fresh VM install and build to ensure this builds without error. Likewise, what is the thought behind requiring SupabaseUrl for building the docs. 
+
+https://github.com/supabase/supabase/blob/master/DEVELOPERS.md
+
+Likewise, how many versions of node.js do you plan on being behind as well as deprecated packages. I hope someone is spot checking these packages in the product release cycle to ensure there are not security issues with the product product.
+
+DN
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by zjy4fun ---
+What problems did you encounter during the build process? 
+I hope you can provide the error information and see if it can help you.
+
+--- Comment 2 by encima ---
+Hello @DarkNeedle,
+
+We plan to support Node 20 as long as it is supported as an LTS release. 
+As @zjy4fun said, did you come across a particular error? Attempting an install on a fresh machine is tested as part of the development workflow.
+
+--- Comment 3 by Hallidayo ---
+Hi all, We’re going to close this one due to inactivity. Please feel free to reopen if you’re still having issues here or open a new issue. 

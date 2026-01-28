@@ -1,0 +1,53 @@
+Issue #5663: redirectTo on signIn/signUp not working (for email + password, Google & GitHub)
+URL: https://github.com/supabase/supabase/issues/5663
+Labels: bug
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+As the title suggests, redirectTo is not working for any of my auth methods.
+
+## To Reproduce
+1. Correct base URL is set up in Supabase auth settings
+2. Add the redirectTo option to signIn methods, e.g.:
+await supabase.auth.signIn(
+      {
+        provider: "google",
+      },
+      { redirectTo: "https://example.com/app" }
+    );
+
+3. User can successfully sign in/up, they're just not redirected.
+
+## Expected behavior
+After sign in, user is redirected to the stated page
+
+## System information
+- MacOS
+- Firefox & Chrome
+- Version of supabase-js: 1.30.6
+- Version of Node.js: v14.17.1
+- Version of supabase/gotrue-js: 1.22.2
+
+## Additional context
+I've read some other issues raised related to this and understand it may be more of an issue with gotrue(?). But I've followed every suggestion so far on issues i've found related to this and have had no success as of yet.
+
+As a side note, I just wanted to say, that overall I love the product. This one issue is just driving me mad! I'm currently using a useEffect hook as a work around, but it's really not ideal.
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by bnjmnt4n ---
+Can you confirm that your `redirectTo` URL is either: a URL path with the same origin and hostname as the site URL, or an exact match of one of the additional redirect URLs?
+
+--- Comment 2 by joe-ashwell ---
+Hey, @bnjmnt4n sorry for the delayed response - I didn't see the notification for this pop up. Yes, I confirm that the redirectTo has the same origin as the hostname url in supabase settings.
+
+--- Comment 3 by emschwartz ---
+I am seeing this same issue. For me, the redirect works with email sign-ins but not with Google.
+
+--- Comment 4 by reedrosenbluth ---
+I'm also seeing this issue. Redirect not working with email sign ins
+
+--- Comment 5 by olefirenko ---
+I am also having the same issue

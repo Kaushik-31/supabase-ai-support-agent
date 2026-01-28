@@ -1,0 +1,74 @@
+Issue #40279: Cron job doesn't work with http
+URL: https://github.com/supabase/supabase/issues/40279
+Labels: question, cli, self-hosted, external-issue
+Status: closed
+================================================================================
+
+PROBLEM:
+# Bug report
+
+- [x] I confirm this is a bug with Supabase, not with my own application. 
+- [x] I confirm I have searched the [Docs](https://docs.supabase.com), GitHub [Discussions](https://github.com/supabase/supabase/discussions), and [Discord](https://discord.supabase.com). 
+
+## Describe the bug
+
+I created a cron job that makes a request to an edge function, but the request isn't going through, even though the functions are running (`npx supabase function serve`). I tried making a request to the function via curl, which works fine. The cron job simply runs and says everything is fine, even though there was no request.
+
+I also don't really understand why there is even an option to select a query directly to edge functions if in local development mode the functions do not appear in the supabase interface itself.
+
+## To Reproduce
+
+Steps to reproduce the behavior, please provide code snippets or a repository:
+
+1. Go to integrations
+2. Click on Cron integration (should be installed)
+3. Create a new cron job with `HTTP Request` type
+4. Set url to edge function
+5. Save and wait until cron job will be launched
+6. Look at the terminal and see no response. Even the console.log is silent.
+
+## Expected behavior
+
+The edge function is expected to run and do its job.
+
+## Screenshots
+
+<img width="1007" height="81" alt="Image" src="https://github.com/user-attachments/assets/305807f2-a309-4e71-9eac-9f90b45b9cff" />
+
+<img width="996" height="216" alt="Image" src="https://github.com/user-attachments/assets/237f1a23-537a-44a3-9b55-2e17778aecb5" />
+
+## System information
+
+- OS: macOS
+- Browser (if applies) Arc Browser
+- Version of supabase-js: latest
+- Version of Node.js: v22.14.0
+
+DISCUSSION/SOLUTIONS:
+
+--- Comment 1 by kallebysantos ---
+Hi @alfUMi 💚
+Did you used `http://127.0.0.1:54321` as host url inside your cron job?
+
+Since local cli stack is docker container based, you may need to reference your ed function from `http://host.docker.internal:54321` instead.
+
+Try edit your cron job to http request with the following url:
+```
+http://host.docker.internal:54321/functions/v1/garbage-cleaner
+```
+
+--- Comment 2 by alfUMi ---
+Hi @kallebysantos
+
+Thank you very much for your response.
+
+It really worked. But I have a question why should I write `host.docker.internal` if in theory cron job is launched inside Supabase and it should be on the same network as the edge function server in docker? Correct me if I'm wrong
+
+--- Comment 3 by kallebysantos ---
+Hi @alfUMi 💚
+
+> it should be on the same network as the edge function
+
+I'm not really sure about the behaviour, but anyway if containers is sharing the same network the correct way to reference would be using `service name` instead o `"localhost" | "127.0.0.1"`. 
+
+I'd always used `host.docker.internal` cause its simpler 😅
