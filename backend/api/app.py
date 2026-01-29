@@ -30,8 +30,8 @@ from backend.database.analytics import (
 # Set template and static folders relative to project root
 app = Flask(
     __name__,
-    template_folder=os.path.join(PROJECT_ROOT, 'templates'),
-    static_folder=os.path.join(PROJECT_ROOT, 'static')
+    template_folder=os.path.join(PROJECT_ROOT, 'frontend', 'templates'),
+    static_folder=os.path.join(PROJECT_ROOT, 'frontend', 'static')
 )
 CORS(app, supports_credentials=True)
 

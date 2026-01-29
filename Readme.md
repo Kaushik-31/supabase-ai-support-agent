@@ -91,7 +91,7 @@ An intelligent customer support chatbot for Supabase that automatically answers 
 ```
 saas-support-agent/
 │
-├── backend/
+├── backend/                     # Python backend
 │   ├── agents/
 │   │   └── chat.py              # Main chatbot logic, intent classification
 │   ├── database/
@@ -99,6 +99,15 @@ saas-support-agent/
 │   │   └── analytics.py         # Dashboard analytics queries
 │   └── api/
 │       └── app.py               # Flask web server
+│
+├── frontend/                    # Web UI
+│   ├── templates/
+│   │   ├── index.html           # Main chat interface
+│   │   └── dashboard.html       # Analytics dashboard
+│   └── static/
+│       ├── style.css            # Chat UI styling
+│       ├── script.js            # Frontend logic
+│       └── dashboard.js         # Dashboard charts
 │
 ├── data/
 │   └── raw/
@@ -111,21 +120,11 @@ saas-support-agent/
 │   ├── github_scraper.py        # GitHub issues collector
 │   └── load_data_to_chromadb.py # Embedding generation & storage
 │
-├── templates/
-│   ├── index.html               # Main chat interface
-│   └── dashboard.html           # Analytics dashboard
-│
-├── static/
-│   ├── style.css                # Chat UI styling
-│   ├── script.js                # Frontend logic
-│   └── dashboard.js             # Dashboard charts
-│
-├── chroma_db/                   # ChromaDB vector storage
-├── .env                         # Environment variables (not in git)
-├── .env.example                 # Template for environment setup
+├── chroma_db/                   # ChromaDB vector storage (gitignored)
+├── .env                         # Environment variables (gitignored)
 ├── .gitignore                   # Git ignore rules
 ├── requirements.txt             # Python dependencies
-├── init_database.py             # Database initialization script
+├── run_once.py                  # Database initialization script
 └── README.md                    # This file
 ```
 
@@ -142,7 +141,7 @@ saas-support-agent/
 
 ### Step 1: Clone Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/supabase-ai-support-agent.git
+git clone https://github.com/Kaushik-31/supabase-ai-support-agent.git
 cd supabase-ai-support-agent
 ```
 
@@ -203,13 +202,16 @@ DATABASE_URL=postgresql://postgres:your_password@localhost:5432/saas_support
 
 ### Step 7: Initialize Database
 ```bash
-python init_database.py
+python run_once.py
 ```
 
 Expected output:
 ```
-✅ Database initialized successfully
-✅ Tables created: conversations
+Initializing database...
+Database initialized successfully
+
+Creating sample conversations...
+Setup complete! You can now run the app with: python app.py
 ```
 
 ### Step 8: Load Knowledge Base
@@ -550,9 +552,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Kaushik**
 
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- GitHub: [@YourUsername](https://github.com/yourusername)
-- Email: your.email@example.com
+- GitHub: [@Kaushik-31](https://github.com/Kaushik-31)
 
 ---
 
