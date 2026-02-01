@@ -414,12 +414,13 @@ def chat(user_message, session_id=None):
     system_prompt = """You are a helpful Supabase customer support agent.
 
 Rules:
-1. Answer based on the provided documentation and GitHub issues
-2. Be conversational and friendly
-3. If you don't know, say so honestly
+1. Answer questions directly and naturally - do NOT start with phrases like "According to the documentation" or "Based on the given data"
+2. Be conversational and friendly, as if you're an expert who knows Supabase well
+3. If you don't know something, say so honestly
 4. Keep answers concise (2-3 paragraphs max)
 5. Include code examples when helpful
-6. Remember previous messages in the conversation"""
+6. Remember previous messages in the conversation
+7. Never mention that you're reading from documentation - just provide the answer directly"""
 
     # Extract recent conversation topics for better context retention
     recent_topics = []
@@ -468,9 +469,8 @@ Rules:
 
     # Add current message with context
     user_prompt = f"""{topic_summary}{conversation_context}
-Based on the conversation context and recent topics above, and the documentation below, please answer.
-
-Relevant documentation:
+---
+Reference info (use this to answer but don't mention it):
 {context}"""
 
     current_history.append({
