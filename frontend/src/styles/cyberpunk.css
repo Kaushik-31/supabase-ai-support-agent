@@ -1,0 +1,230 @@
+/* Cyberpunk Effects */
+
+:root {
+  --neon-blue: #00f3ff;
+  --neon-pink: #ff006e;
+  --neon-purple: #9d4edd;
+  --bg-dark: #0a0a0f;
+}
+
+/* Scanline effect */
+.scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanlines::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 243, 255, 0.02) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 1;
+  animation: scanlineMove 8s linear infinite;
+}
+
+@keyframes scanlineMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+/* Digital noise texture */
+.digital-noise {
+  position: relative;
+}
+
+.digital-noise::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 2;
+  animation: noiseAnim 0.2s infinite;
+}
+
+@keyframes noiseAnim {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.05; }
+}
+
+/* Neon glow text */
+.neon-text-blue {
+  color: var(--neon-blue);
+  text-shadow: 
+    0 0 10px rgba(0, 243, 255, 0.8),
+    0 0 20px rgba(0, 243, 255, 0.6),
+    0 0 30px rgba(0, 243, 255, 0.4);
+}
+
+.neon-text-pink {
+  color: var(--neon-pink);
+  text-shadow: 
+    0 0 10px rgba(255, 0, 110, 0.8),
+    0 0 20px rgba(255, 0, 110, 0.6),
+    0 0 30px rgba(255, 0, 110, 0.4);
+}
+
+.neon-text-purple {
+  color: var(--neon-purple);
+  text-shadow: 
+    0 0 10px rgba(157, 78, 221, 0.8),
+    0 0 20px rgba(157, 78, 221, 0.6),
+    0 0 30px rgba(157, 78, 221, 0.4);
+}
+
+/* Glitch effect */
+.glitch {
+  position: relative;
+  animation: glitch-skew 3s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 var(--neon-pink);
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 var(--neon-blue);
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  20% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  40% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  60% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  80% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  100% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+  0% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  20% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  40% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  60% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  80% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+  100% { clip: rect(random(100) + px, 9999px, random(100) + px, 0); }
+}
+
+@keyframes glitch-skew {
+  0% { transform: skew(0deg); }
+  10% { transform: skew(0deg); }
+  11% { transform: skew(-2deg); }
+  12% { transform: skew(0deg); }
+  100% { transform: skew(0deg); }
+}
+
+/* Pulse animation */
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { 
+    box-shadow: 0 0 5px currentColor,
+                0 0 10px currentColor,
+                0 0 15px currentColor;
+  }
+  50% { 
+    box-shadow: 0 0 10px currentColor,
+                0 0 20px currentColor,
+                0 0 30px currentColor;
+  }
+}
+
+/* Matrix rain character */
+.matrix-char {
+  font-family: 'JetBrains Mono', monospace;
+  position: absolute;
+  color: var(--neon-blue);
+  opacity: 0.4;
+  text-shadow: 0 0 10px var(--neon-blue);
+  animation: matrixFall linear infinite;
+  pointer-events: none;
+}
+
+@keyframes matrixFall {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.4;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Holographic gradient */
+.holographic {
+  background: linear-gradient(
+    45deg,
+    rgba(0, 243, 255, 0.1),
+    rgba(255, 0, 110, 0.1),
+    rgba(157, 78, 221, 0.1),
+    rgba(0, 243, 255, 0.1)
+  );
+  background-size: 300% 300%;
+  animation: holographicShift 6s ease infinite;
+}
+
+@keyframes holographicShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Glitch artifact */
+.glitch-artifact {
+  position: absolute;
+  background: var(--neon-pink);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+  animation: glitchArtifact 0.3s ease-in-out;
+}
+
+@keyframes glitchArtifact {
+  0% { 
+    opacity: 0.8;
+    transform: translateX(0) scaleX(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translateX(5px) scaleX(1.2);
+  }
+  100% { 
+    opacity: 0;
+    transform: translateX(10px) scaleX(0.8);
+  }
+}
