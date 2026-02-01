@@ -12,7 +12,7 @@ load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
 # Add project root to path for imports
 sys.path.insert(0, PROJECT_ROOT)
 
-from flask import Flask, request, jsonify, render_template, session
+from flask import Flask, request, jsonify, render_template, session, send_from_directory
 from flask_cors import CORS
 from backend.agents.chat import chat
 from backend.database.database import save_feedback
@@ -27,11 +27,14 @@ from backend.database.analytics import (
     get_recent_conversations
 )
 
-# Set template and static folders relative to project root
+# React build directory
+REACT_BUILD_DIR = os.path.join(PROJECT_ROOT, 'frontend', 'dist')
+
+# Flask app with static folder pointing to React build
 app = Flask(
     __name__,
-    template_folder=os.path.join(PROJECT_ROOT, 'frontend', 'templates'),
-    static_folder=os.path.join(PROJECT_ROOT, 'frontend', 'static')
+    static_folder=REACT_BUILD_DIR,
+    static_url_path=''
 )
 CORS(app, supports_credentials=True)
 
@@ -41,7 +44,14 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', os.urandom(24).hex())
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    """Serve React app"""
+    return send_from_directory(REACT_BUILD_DIR, 'index.html')
+
+
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    """Serve React assets"""
+    return send_from_directory(os.path.join(REACT_BUILD_DIR, 'assets'), filename)
 
 
 @app.route('/chat', methods=['POST'])
@@ -114,9 +124,9 @@ def stats_endpoint():
         })
 
 
-@app.route('/dashboard')
-def dashboard():
-    """Analytics dashboard page"""
+@app.route('/api/dashboard')
+def dashboard_api():
+    """Dashboard analytics API endpoint"""
     try:
         data = {
             'total_queries': get_total_queries(),
@@ -127,9 +137,9 @@ def dashboard():
             'top_questions': get_most_asked_questions(limit=10),
             'recent_conversations': get_recent_conversations(limit=20)
         }
-        return render_template('dashboard.html', **data)
+        return jsonify(data)
     except Exception as e:
-        return render_template('dashboard.html', error=str(e))
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

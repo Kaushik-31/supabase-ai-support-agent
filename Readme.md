@@ -3,6 +3,8 @@
 An intelligent customer support chatbot for Supabase that automatically answers technical questions using Retrieval Augmented Generation (RAG). Built to demonstrate end-to-end AI engineering capabilities.
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6.svg)](https://www.typescriptlang.org/)
 [![AWS](https://img.shields.io/badge/AWS-Bedrock-orange.svg)](https://aws.amazon.com/bedrock/)
 [![Flask](https://img.shields.io/badge/Flask-3.1.0-green.svg)](https://flask.palletsprojects.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-0.5.23-purple.svg)](https://www.trychroma.com/)
@@ -20,11 +22,12 @@ An intelligent customer support chatbot for Supabase that automatically answers 
 
 ## ✨ Features
 
+- 🎨 **Cyberpunk UI** - Futuristic React interface with neon effects and animations
 - 🤖 **Intelligent Intent Classification** - Distinguishes greetings, questions, and off-topic requests
 - 🔍 **Semantic Search** - ChromaDB vector database with AWS Bedrock embeddings
 - 💬 **Conversational AI** - Powered by Claude 3 Haiku via AWS Bedrock
 - 🧠 **Context Awareness** - Maintains conversation memory across messages
-- 📊 **Analytics Dashboard** - Real-time usage metrics and feedback tracking
+- 📊 **Real-time Stats** - Live queries count and response time in header
 - 👍👎 **User Feedback System** - Collects ratings to improve responses
 - 💾 **Conversation Logging** - PostgreSQL storage for all interactions
 - 🎯 **Hallucination Prevention** - Admits when information is unavailable
@@ -34,21 +37,21 @@ An intelligent customer support chatbot for Supabase that automatically answers 
 
 ## 🏗️ Architecture
 ```
-┌─────────────┐
-│   User UI   │ (Web Browser)
-└──────┬──────┘
-       │
-┌──────▼──────────┐
-│  Flask Backend  │ (Python)
-└──────┬──────────┘
-       │
-   ┌───┴────┬──────────┬────────────┐
-   │        │          │            │
-┌──▼───┐ ┌─▼────┐ ┌───▼─────┐ ┌────▼────┐
-│Claude│ │Titan │ │ChromaDB │ │Postgres │
-│ AI   │ │Embed │ │(Vectors)│ │  (Data) │
-└──────┘ └──────┘ └─────────┘ └─────────┘
-   AWS      AWS      Local      Local
+┌──────────────────┐
+│  React Frontend  │ (Vite + TypeScript)
+└────────┬─────────┘
+         │
+┌────────▼─────────┐
+│   Flask Backend  │ (Python API)
+└────────┬─────────┘
+         │
+   ┌─────┴─────┬──────────┬────────────┐
+   │           │          │            │
+┌──▼───┐  ┌───▼───┐ ┌────▼────┐ ┌─────▼────┐
+│Claude│  │ Titan │ │ChromaDB │ │ Postgres │
+│  AI  │  │ Embed │ │(Vectors)│ │  (Data)  │
+└──────┘  └───────┘ └─────────┘ └──────────┘
+   AWS       AWS       Local        Local
 ```
 
 ### How It Works
@@ -77,9 +80,11 @@ An intelligent customer support chatbot for Supabase that automatically answers 
 - **psycopg2** - PostgreSQL database adapter
 
 ### Frontend
-- **HTML5/CSS3** - Modern responsive UI
-- **JavaScript (Vanilla)** - Client-side interactions
-- **Chart.js** - Analytics visualizations
+- **React 18** - Modern component-based UI
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS v4** - Utility-first styling
+- **Vite** - Fast build tool and dev server
+- **Framer Motion** - Smooth animations
 
 ### Data Collection
 - **BeautifulSoup4** - Web scraping
@@ -91,7 +96,7 @@ An intelligent customer support chatbot for Supabase that automatically answers 
 ```
 saas-support-agent/
 │
-├── backend/                     # Python backend
+├── backend/                     # Python backend (Flask API)
 │   ├── agents/
 │   │   └── chat.py              # Main chatbot logic, intent classification
 │   ├── database/
@@ -100,14 +105,16 @@ saas-support-agent/
 │   └── api/
 │       └── app.py               # Flask web server
 │
-├── frontend/                    # Web UI
-│   ├── templates/
-│   │   ├── index.html           # Main chat interface
-│   │   └── dashboard.html       # Analytics dashboard
-│   └── static/
-│       ├── style.css            # Chat UI styling
-│       ├── script.js            # Frontend logic
-│       └── dashboard.js         # Dashboard charts
+├── frontend/                    # React frontend (Vite + TypeScript)
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── App.tsx          # Main chat application
+│   │   │   └── components/      # React components
+│   │   ├── styles/              # CSS and Tailwind styles
+│   │   └── main.tsx             # Entry point
+│   ├── package.json             # Node.js dependencies
+│   ├── vite.config.ts           # Vite configuration
+│   └── tsconfig.json            # TypeScript configuration
 │
 ├── data/
 │   └── raw/
@@ -135,6 +142,7 @@ saas-support-agent/
 ### Prerequisites
 
 - **Python 3.12+** ([Download](https://www.python.org/downloads/))
+- **Node.js 18+** ([Download](https://nodejs.org/))
 - **PostgreSQL 18+** ([Download](https://www.postgresql.org/download/))
 - **AWS Account** with Bedrock access ([Sign up](https://aws.amazon.com/))
 - **Git** ([Download](https://git-scm.com/downloads))
@@ -224,21 +232,39 @@ This will:
 - Store vectors in ChromaDB
 - Display progress for each document
 
-### Step 9: Run the Application
+### Step 9: Install Frontend Dependencies
+```bash
+cd frontend
+npm install
+```
+
+### Step 10: Run in Development Mode
+
+**Terminal 1 - Backend:**
 ```bash
 python backend/api/app.py
 ```
 
-Expected output:
-```
-* Running on http://127.0.0.1:5000
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+npm run dev
 ```
 
-### Step 10: Access the Application
+Open http://localhost:3000 for the chat interface.
 
-Open your browser and visit:
-- **Chat Interface:** http://localhost:5000
-- **Analytics Dashboard:** http://localhost:5000/dashboard
+### Step 11: Build for Production
+```bash
+cd frontend
+npm run build
+```
+
+Then run Flask to serve both API and built frontend:
+```bash
+python backend/api/app.py
+```
+
+Open http://localhost:5000 for the production build.
 
 ---
 
@@ -487,8 +513,19 @@ Response:
 }
 ```
 
-**GET /dashboard**
-- Returns HTML dashboard with analytics
+**GET /api/dashboard**
+```json
+Response:
+{
+  "total_queries": 150,
+  "queries_by_date": [...],
+  "top_intents": [...],
+  "response_time": {"average_ms": 3000},
+  "feedback_stats": {"positive": 85, "negative": 15},
+  "top_questions": [...],
+  "recent_conversations": [...]
+}
+```
 
 ---
 
@@ -578,6 +615,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you're learning from this project:
 
+- **React:** [React Documentation](https://react.dev/)
+- **TypeScript:** [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- **Tailwind CSS:** [Tailwind Documentation](https://tailwindcss.com/docs)
 - **RAG Architecture:** [Anthropic RAG Guide](https://www.anthropic.com/index/retrieval-augmented-generation)
 - **Vector Databases:** [ChromaDB Docs](https://docs.trychroma.com/)
 - **AWS Bedrock:** [AWS Bedrock Guide](https://docs.aws.amazon.com/bedrock/)
